@@ -31,34 +31,29 @@ namespace Blake2
 
 		public Blake2BTreeConfig TreeConfig { get; set; }
 
-		public int OutputSizeInBytes { get; protected set; }
+		private int _outputSizeInBytes;
 
-		public int OutputSizeInBits
-		{
-			get { return OutputSizeInBytes * 8; }
-			protected set
-			{
+		public int OutputSizeInBytes 
+		{ 
+			get { return _outputSizeInBytes; }
+			protected set 
+			{ 
+				if (value <= 0 || value > 64)
+					throw new ArgumentOutOfRangeException("outputSizeInBytes");
 				if (value % 8 != 0)
-					throw new ArgumentException("Output size must be a multiple of 8 bits");
-				
-				OutputSizeInBytes = value / 8;
+					throw new ArgumentOutOfRangeException("outputSizeInBytes must be a multiple of 8 bits");
+
+				_outputSizeInBytes = value;
 			}
 		}
 
-		public override int HashSize { get { return OutputSizeInBits; } }
+		public override int HashSize { get { return OutputSizeInBytes * 8; } }
 
 		public Blake2B() : this(64) { }
 
 		public Blake2B(int outputSizeInBytes)
-		{
-			if (outputSizeInBytes <= 0 || outputSizeInBytes > 64)
-				throw new ArgumentOutOfRangeException("outputSizeInBytes");
-			if (outputSizeInBytes % 8 != 0)
-				throw new ArgumentOutOfRangeException("outputSizeInBytes must be a multiple of 8 bits");
-			
+		{			
 			OutputSizeInBytes = outputSizeInBytes;
-
-			Initialize();
 		}
 
 		private bool _isInitialized = false;
@@ -133,15 +128,13 @@ namespace Blake2
 				rawConfig = new ulong[8];
 
 			// digest length
-			if (OutputSizeInBytes <= 0 || OutputSizeInBytes > 64)
-				throw new ArgumentOutOfRangeException("OutputSizeInBytes");
 			rawConfig[0] |= (ulong)(uint)OutputSizeInBytes;
 
 			// Key length
 			if (Key != null)
 			{
 				if (Key.Length > 64)
-					throw new ArgumentException("config.Key", "Key too long");
+					throw new ArgumentException("Key", "Key too long");
 				rawConfig[0] |= (ulong)((uint)Key.Length << 8);
 			}
 
@@ -239,8 +232,6 @@ namespace Blake2
 
 		protected override void HashCore(byte[] array, int start, int count)
 		{
-			if (!_isInitialized)
-				throw new InvalidOperationException("Not initialized");
 			if (array == null)
 				throw new ArgumentNullException("array");
 			if (start < 0)
@@ -249,6 +240,9 @@ namespace Blake2
 				throw new ArgumentOutOfRangeException("count");
 			if ((long)start + (long)count > array.Length)
 				throw new ArgumentOutOfRangeException("start+count");
+
+			if (!_isInitialized) Initialize();
+
 			int offset = start;
 			int bufferRemaining = BlockSizeInBytes - _bufferFilled;
 
@@ -288,8 +282,8 @@ namespace Blake2
 
 		protected virtual byte[] HashFinal(bool isEndOfLayer)
 		{
-			if (!_isInitialized)
-				throw new InvalidOperationException("Not initialized");
+			if (!_isInitialized) Initialize();
+
 			_isInitialized = false;
 
 			//Last compression
@@ -316,6 +310,21 @@ namespace Blake2
 				{
 					Array.Clear(rawConfig, 0, rawConfig.Length);
 					rawConfig = null;
+				}
+				if (_buf != null)
+				{
+					Array.Clear(_buf, 0, _buf.Length);
+					_buf = null;
+				}
+				if (_m != null)
+				{
+					Array.Clear(_m, 0, _m.Length);
+					_m = null;
+				}
+				if (_h != null)
+				{
+					Array.Clear(_h, 0, _h.Length);
+					_h = null;
 				}
 				if (Personalization != null)
 				{
