@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Globalization;
@@ -10,29 +11,71 @@ namespace Blake2
 	{
 		static void Main(string[] args) 
 		{
-			int argsI; // string command;
-			Dictionary<string, string> dictionary
-				= ReadConsoleArguments(args, out argsI); //, out command);
+			int argsI; string command;
+			Dictionary<string, string> dictionary = ReadConsoleArguments(args, out argsI, out command);
 
-			var concatArgs = string.Empty;
-			var concatArgsSB = new StringBuilder();
-			for (int j = 0; argsI < args.Length; ++argsI, ++j)
+			if (string.IsNullOrEmpty(command) || command.Equals("Hash512", StringComparison.OrdinalIgnoreCase))
 			{
-				if (j > 0) concatArgsSB.Append(' ');
-				concatArgsSB.Append(args[argsI]);
+				Hash512(dictionary);
+				return;
 			}
-			concatArgs = concatArgsSB.ToString();
 
-			byte[] bytes = Encoding.UTF8.GetBytes(concatArgs);
-			byte[] value;
+			Console.WriteLine("HELP: Use ./Blake2.exe --In=./Hallo.txt -- Hash512 ");
+		}
 
-			using (var hash = new Blake2B()) value = hash.ComputeHash(bytes);
+		public static void Hash512(IDictionary<string, string> dictionary)
+		{
+			FileInfo inFile = null;
+			if (dictionary.ContainsKey("In"))
+			if (File.Exists(dictionary["In"]))
+				inFile = new FileInfo(dictionary["In"]);
+			if (inFile == null || !inFile.Exists)
+				throw new FileNotFoundException("In (file) not found");
 
-			foreach (byte v in value) Console.Write("{0:x2}", v);
+			/* FileInfo outFile;
+			if (dictionary.ContainsKey("Out"))
+			if (File.Exists(dictionary["Out"]))
+				outFile = new FileInfo(dictionary["Out"]);
+			// if (!outFile.Exists) throw new FileNotFoundException("Out (file) not found"); /**/
+
+			/* string inDir = inFile.DirectoryName;
+			string inFileName = inFile.Name;
+			string inFileExt = inFile.Extension;
+
+			var outFile = new FileInfo(inDir + inFileName + ".Blake2B" + inFileExt);
+			/**/
+
+			byte[] hashValue;
+
+			// using (var hash = new Blake2B()) value = hash.ComputeHash(bytes);
+
+			using (var fileIn = new FileStream(inFile.FullName, FileMode.Open))
+			// using (var fileOut = new FileStream(outFile.FullName))
+			using (var hash = new Blake2B())
+			{
+				var buffer = new byte[128];
+				int bufferC = 0;
+				int bufferL;
+				do
+				{
+					bufferL = fileIn.Read(buffer, bufferC, bufferC + buffer.Length);
+				
+					if (bufferL > 0)
+					{
+						hash.Core(buffer, 0, bufferL);
+					}
+				
+				} while(bufferL == 0 || (bufferC += buffer.Length) < fileIn.Length);
+
+				hashValue = hash.Final();
+			}
+
+			foreach (byte v in hashValue) Console.Write("{0:x2}", v);
 			Console.WriteLine();
 		}
 
-		static Dictionary<string, string> ReadConsoleArguments(string[] args, out int argsI) // , out string command)
+
+		static Dictionary<string, string> ReadConsoleArguments(string[] args, out int argsI, out string command)
 		{
 			argsI = 0;
 
@@ -49,6 +92,10 @@ namespace Blake2
 
 				if (dashs > 0)
 				{
+					if (arg.Length == dashs)
+					{
+						break;
+					}
 					if (nameI == -1)
 					{
 						argName = arg.Substring(dashs);
@@ -67,8 +114,8 @@ namespace Blake2
 				break;
 			} while (++argsI < args.Length);
 
-			/* command = string.Empty;
-			if (argsI < args.Length)
+			command = string.Empty;
+			if (argsI + 1 < args.Length)
 			{
 				command = args[++argsI];
 			} /**/

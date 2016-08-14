@@ -373,6 +373,13 @@ namespace Blake2
 			return _hash;
 		}
 
+		public virtual byte[] Final()
+		{
+			var _hash = new byte[HashSizeInBytes];
+			Final(_hash, false);
+			return _hash;
+		}
+
 		public virtual void Final(byte[] _hash)
 		{
 			Final(_hash, false);
