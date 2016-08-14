@@ -19,7 +19,7 @@ namespace Blake2
 #if SIMPLE
 	public partial class Blake2B
 	{
-		private ulong[] _v = new ulong[16];
+		private ulong[] v = new ulong[16];
 
 		private static ulong RotateRight(ulong value, int nBits)
 		{
@@ -31,14 +31,12 @@ namespace Blake2
 			int p = (r << 4) + i;
 			int p0 = Sigma[p];
 			int p1 = Sigma[p + 1];
-			var v = _v;
-			var m = _m;
 
-			v[a] += v[b] + m[p0];
+			v[a] += v[b] + material[p0];
 			v[d] = RotateRight(v[d] ^ v[a], 32);
 			v[c] += v[d];
 			v[b] = RotateRight(v[b] ^ v[c], 24);
-			v[a] += v[b] + m[p1];
+			v[a] += v[b] + material[p1];
 			v[d] = RotateRight(v[d] ^ v[a], 16);
 			v[c] += v[d];
 			v[b] = RotateRight(v[b] ^ v[c], 63);
@@ -46,21 +44,17 @@ namespace Blake2
 
 		partial void Compress(byte[] block, int start)
 		{
-			var v = _v;
-			var h = _h;
-			var m = _m;
-
 			for (int i = 0; i < 16; ++i)
-				m[i] = BytesToUInt64(block, start + (i << 3));
+				material[i] = BytesToUInt64(block, start + (i << 3));
 
-			v[0] = h[0];
-			v[1] = h[1];
-			v[2] = h[2];
-			v[3] = h[3];
-			v[4] = h[4];
-			v[5] = h[5];
-			v[6] = h[6];
-			v[7] = h[7];
+			v[0] = hash[0];
+			v[1] = hash[1];
+			v[2] = hash[2];
+			v[3] = hash[3];
+			v[4] = hash[4];
+			v[5] = hash[5];
+			v[6] = hash[6];
+			v[7] = hash[7];
 
 			v[8] = IV0;
 			v[9] = IV1;
@@ -84,7 +78,7 @@ namespace Blake2
 			}
 
 			for (int i = 0; i < 8; ++i)
-				h[i] ^= v[i] ^ v[i + 8];
+				hash[i] ^= v[i] ^ v[i + 8];
 		}
 	}
 #endif

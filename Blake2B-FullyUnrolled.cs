@@ -21,57 +21,52 @@ namespace Blake2
 	{
 		partial void Compress(byte[] block, int start)
 		{
-			var h = _h;
-			var m = _m;
-
 			if (BitConverter.IsLittleEndian)
 			{
-				Buffer.BlockCopy(block, start, m, 0, BlockSizeInBytes);
+				Buffer.BlockCopy(block, start, material, 0, BlockSizeInBytes);
 			}
 			else
 			{
 				for (int i = 0; i < 16; ++i)
-					m[i] = BytesToUInt64(block, start + (i << 3));
+					material[i] = BytesToUInt64(block, start + (i << 3));
 			}
 
-			var m0 = m[0];
-			var m1 = m[1];
-			var m2 = m[2];
-			var m3 = m[3];
-			var m4 = m[4];
-			var m5 = m[5];
-			var m6 = m[6];
-			var m7 = m[7];
-			var m8 = m[8];
-			var m9 = m[9];
-			var m10 = m[10];
-			var m11 = m[11];
-			var m12 = m[12];
-			var m13 = m[13];
-			var m14 = m[14];
-			var m15 = m[15];
+			ulong m0 = material[0];
+			ulong m1 = material[1];
+			ulong m2 = material[2];
+			ulong m3 = material[3];
+			ulong m4 = material[4];
+			ulong m5 = material[5];
+			ulong m6 = material[6];
+			ulong m7 = material[7];
+			ulong m8 = material[8];
+			ulong m9 = material[9];
+			ulong m10 = material[10];
+			ulong m11 = material[11];
+			ulong m12 = material[12];
+			ulong m13 = material[13];
+			ulong m14 = material[14];
+			ulong m15 = material[15];
 
-			var v0 = h[0];
-			var v1 = h[1];
-			var v2 = h[2];
-			var v3 = h[3];
-			var v4 = h[4];
-			var v5 = h[5];
-			var v6 = h[6];
-			var v7 = h[7];
+			ulong v0 = hash[0];
+			ulong v1 = hash[1];
+			ulong v2 = hash[2];
+			ulong v3 = hash[3];
+			ulong v4 = hash[4];
+			ulong v5 = hash[5];
+			ulong v6 = hash[6];
+			ulong v7 = hash[7];
 
-			var v8 = IV0;
-			var v9 = IV1;
-			var v10 = IV2;
-			var v11 = IV3;
-			var v12 = IV4 ^ _counter0;
-			var v13 = IV5 ^ _counter1;
-			var v14 = IV6 ^ _finalizationFlag0;
-			var v15 = IV7 ^ _finalizationFlag1;
+			ulong v8 = IV0;
+			ulong v9 = IV1;
+			ulong v10 = IV2;
+			ulong v11 = IV3;
+			ulong v12 = IV4 ^ _counter0;
+			ulong v13 = IV5 ^ _counter1;
+			ulong v14 = IV6 ^ _finalizationFlag0;
+			ulong v15 = IV7 ^ _finalizationFlag1;
 
 			// Rounds
-
-			//System.Diagnostics.Debugger.Break();
 
 			// ##### Round(0) #####
 			// G(0, 0, v0, v4, v8, v12)
@@ -1441,17 +1436,15 @@ namespace Blake2
 			v4 = ((v4 >> 63) | (v4 << (64 - 63)));
 
 
-
-
-			//Finalization
-			h[0] ^= v0 ^ v8;
-			h[1] ^= v1 ^ v9;
-			h[2] ^= v2 ^ v10;
-			h[3] ^= v3 ^ v11;
-			h[4] ^= v4 ^ v12;
-			h[5] ^= v5 ^ v13;
-			h[6] ^= v6 ^ v14;
-			h[7] ^= v7 ^ v15;
+			// Finalization
+			hash[0] ^= v0 ^ v8;
+			hash[1] ^= v1 ^ v9;
+			hash[2] ^= v2 ^ v10;
+			hash[3] ^= v3 ^ v11;
+			hash[4] ^= v4 ^ v12;
+			hash[5] ^= v5 ^ v13;
+			hash[6] ^= v6 ^ v14;
+			hash[7] ^= v7 ^ v15;
 		}
 	}
 #endif
