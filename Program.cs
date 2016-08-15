@@ -14,16 +14,23 @@ namespace Blake2
 			int argsI; string command;
 			Dictionary<string, string> dictionary = ReadConsoleArguments(args, out argsI, out command);
 
-			if (string.IsNullOrEmpty(command) || command.Equals("Hash512", StringComparison.OrdinalIgnoreCase))
+			if (string.IsNullOrEmpty(command) || command.Equals("Blake2B", StringComparison.OrdinalIgnoreCase))
 			{
-				Hash512(dictionary);
+				Blake2B(dictionary);
 				return;
 			}
 
-			Console.WriteLine("HELP: Use ./Blake2.exe --In=./Hallo.txt -- Hash512 ");
+			string format =
+				"      HELP: ./Blake2B.exe --In=./Hallo.txt -- Blake2B{0}"
+				+	"        ./Blake2B.exe [ --option=value ] [ -- ] [ command ]{0}"
+				+	"{0}"
+				+	"   COMMAND: Blake2B{0}"
+				+	"            Requires option --In=./FileName.txt.{0}";
+			
+			Console.WriteLine(format, Environment.NewLine);
 		}
 
-		public static void Hash512(IDictionary<string, string> dictionary)
+		public static void Blake2B(IDictionary<string, string> dictionary)
 		{
 			FileInfo inFile = null;
 			if (dictionary.ContainsKey("In"))
