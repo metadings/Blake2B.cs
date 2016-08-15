@@ -74,7 +74,7 @@ using System.Text;
 
 **Example 1**
 
-```bash
+```
 ~/Blake2B.cs/bin/Debug $ echo -n HHHHAAAALLLLOOOOWWWWEEEELLLLTTTT > ./Hallo.txt
 
 ~/Blake2B.cs/bin/Debug $ hexdump ./Hallo.txt 
