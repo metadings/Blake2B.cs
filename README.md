@@ -80,7 +80,8 @@ using System.Text;
 
 		2. Use `emacs` as your editor.
 
-		   Use file `~/.emacs.d/init.el` with `(global-auto-revert-mode 1)`,
+		   Press `M-x auto-revert-mode`
+		   or use file `~/.emacs.d/init.el` with `(global-auto-revert-mode 1)`,
 		   to have a real-time view of your program.
 
 		3. Also try this using new System.Threading.Thread's:
