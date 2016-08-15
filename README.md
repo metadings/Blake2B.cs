@@ -47,8 +47,9 @@ using System.Text;
 	byte[] hashSource = new byte[sizeof(UInt64) + textBytes.Length];
 	Buffer.BlockCopy(textBytes, 0, hashSource, sizeof(UInt64), textBytes.Length);
 
-	UInt64 i = 0; // threadI;
 	var hashValue = new byte[64];
+
+	UInt64 i = 0; // threadI;
 
 	using (var hash = new Blake2B())
 	{
