@@ -76,7 +76,9 @@ using System.Text;
 
 		1. If you use `emacs` as your editor, use file `~/.emacs.d/init.el`
 		   and (global-auto-revert-mode 1) to have a real-time view of your program,
-		   if you run this `$ mono ./YourProgram.exe > './YourProgram's output.txt'` !
+		   if you run this using a pipe on GNU/Linux and also on Windows
+
+		   $ mono ./YourProgram.exe > './YourProgram's output.txt'
 
 		2. You should also try this using new System.Threading.Thread's:
 
