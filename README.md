@@ -68,7 +68,16 @@ using System.Text;
 
 		} while (0 < ++i && i < UInt32.MaxValue);
 
-		/* You should also try this using System.Threading.Thread! *
+		/*
+
+		1. DANGER: Your program will run FOR HOURS !
+
+		2. If you use `emacs` as your editor, use file `~/emacs.d/init.el`
+		   and (global-auto-revert-mode 1) to have a real-time view of your program,
+		   if you run this `$ mono ./YourProgram.exe > './YourProgram's output.txt'` !
+
+		3. You should also try this using new System.Threading.Thread's:
+
 		} while (threadI < (i += threadC)); /**/
 	}
 
