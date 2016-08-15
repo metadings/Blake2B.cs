@@ -30,11 +30,7 @@ using System.Text;
 
 	using (var hash = new Blake2B()) value = hash.ComputeHash(bytes);
 
-	// Console.Write
-	foreach (byte v in value)
-	{
-		Console.Write("{0:x2}", v);
-	}
+	foreach (byte v in value) Console.Write("{0:x2}", v);
 	Console.WriteLine();
 
 ```
@@ -71,11 +67,7 @@ using System.Text;
 		} while (UInt64.MaxValue > (i += 1)); // threadC));
 	}
 
-	// Console.Write
-	foreach (byte v in hashValue)
-	{
-		Console.Write("{0:x2}", v);
-	}
+	foreach (byte v in hashValue) Console.Write("{0:x2}", v);
 	Console.WriteLine();
 
 ```
