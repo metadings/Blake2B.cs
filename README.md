@@ -74,15 +74,16 @@ using System.Text;
 		   => 1.012.321.448 Blake2B in 1131s or 18,85m
 		   => 895.068 Blake2B/s or 53.704.056 Blake2B/m
 
-		1. You run this program using a pipe, on GNU/Linux and on Windows
+		1. Run this using a pipe, on GNU/Linux and on Windows
 
 		   $ mono ./YourProgram.exe > './YourPrograms output.txt'
 
-		2. You should use `emacs` as your editor.
+		2. Use `emacs` as your editor.
+
 		   Use file `~/.emacs.d/init.el` with `(global-auto-revert-mode 1)`,
 		   to have a real-time view of your program.
 
-		3. You should also try this using new System.Threading.Thread's:
+		3. Also try this using new System.Threading.Thread's:
 
 		} while (threadI < (i += threadC)); /**/
 	}
