@@ -18,7 +18,7 @@ this software. If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
 
 Have "one" Blake2B hash value.
 
-```
+```csharp
 using Blake2;
 using System;
 using System.Text;
@@ -39,7 +39,7 @@ using System.Text;
 
 Have "many" Blake2B hash values.
 
-```
+```csharp
 using Blake2;
 using System;
 using System.Text;
@@ -74,7 +74,7 @@ using System.Text;
 
 **Example 1**
 
-```
+```bash
 ~/Blake2B.cs/bin/Debug $ echo -n HHHHAAAALLLLOOOOWWWWEEEELLLLTTTT > ./Hallo.txt
 
 ~/Blake2B.cs/bin/Debug $ hexdump ./Hallo.txt 
