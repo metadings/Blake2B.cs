@@ -1,5 +1,5 @@
 ﻿
-**﻿BLAKE2 reference source code package - C# implementation**
+**﻿﻿Blake2B.cs source code package - C# implementation**
 
 ```
 Written in 2012 by Samuel Neves <sneves@dei.uc.pt>
