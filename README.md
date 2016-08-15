@@ -72,6 +72,10 @@ using System.Text;
 
 		1. DANGER: Your program will run FOR HOURS !
 
+		   Intel Pentium Dual CPU E2160 @ 1.80GHz x2
+		   1.012.321.448 Blake2B in 18,85m or 1131s
+		   895.068 Blake2B/s or 53.704.056 Blake2B/m
+
 		2. If you use `emacs` as your editor, use file `~/emacs.d/init.el`
 		   and (global-auto-revert-mode 1) to have a real-time view of your program,
 		   if you run this `$ mono ./YourProgram.exe > './YourProgram's output.txt'` !
