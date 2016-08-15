@@ -14,21 +14,58 @@ You should have received a copy of the CC0 Public Domain Dedication along with
 this software. If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
 ```
 
-**Usage**
+**Usage 1**
+
+Have "one" Blake2B hash value.
 
 ```
 using Blake2;
 using System;
 using System.Text;
 
-string text = "HHHHAAAALLLLOOOOWWWWEEEELLLLTTTT";
-byte[] bytes = Encoding.UTF8.GetBytes(text);
-byte[] value;
 
-using (var hash = new Blake2B()) value = hash.ComputeHash(bytes);
+	string text = "HHHHAAAALLLLOOOOWWWWEEEELLLLTTTT";
+	byte[] bytes = Encoding.UTF8.GetBytes(text);
+	byte[] value;
+
+	using (var hash = new Blake2B()) value = hash.ComputeHash(bytes);
+
 ```
 
-**Examples**
+**Usage 2**
+
+Have "many" Blake2B hash values.
+
+```
+using Blake2;
+using System;
+using System.Text;
+
+
+	byte[] textBytes = Encoding.UTF8.GetBytes("HHHHAAAALLLLOOOOWWWWEEEELLLLTTTT");
+
+	byte[] hashSource = new byte[sizeof(UInt64) + textBytes.Length];
+	Buffer.BlockCopy(textBytes, 0, hashSource, sizeof(UInt64), textBytes.Length);
+
+	UInt64 i = 0; // threadI;
+	var hashValue = new byte[64];
+
+	using (var hash = new Blake2B())
+	{
+		do
+		{
+			Blake2B.UInt64ToBytes(i, hashSource, 0);
+
+			hash.Compute(hashValue, hashSource);
+
+			// if (Quersumme(i + 1) == 1) Console.WriteLine ...
+
+		} while (UInt64.MaxValue > (i += 1)); // threadC));
+	}
+
+```
+
+**Example 1**
 
 ```
 ~/Blake2B.cs/bin/Debug $ echo -n HHHHAAAALLLLOOOOWWWWEEEELLLLTTTT > ./Hallo.txt

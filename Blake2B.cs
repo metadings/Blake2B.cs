@@ -21,6 +21,8 @@ namespace Blake2
 {
 	public partial class Blake2B : HashAlgorithm
 	{
+		private ulong[] rawConfig;
+
 		private byte[] _Personalization;
 
 		public byte[] Personalization 
@@ -248,7 +250,11 @@ namespace Blake2
 
 		public override void Initialize()
 		{
-			Initialize(Prepare());
+			if (rawConfig == null)
+			{
+				rawConfig = Prepare();
+			}
+			Initialize(rawConfig);
 		}
 
 		/* public static void ConfigBSetNode(ulong[] rawConfig, byte depth, ulong nodeOffset)
