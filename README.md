@@ -81,7 +81,7 @@ using System.Text;
 
 		   $ mono ./YourProgram.exe > './YourPrograms output.txt'
 
-		2. You should also try this using new System.Threading.Thread's:
+		3. You should also try this using new System.Threading.Thread's:
 
 		} while (threadI < (i += threadC)); /**/
 	}
