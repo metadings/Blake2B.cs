@@ -74,9 +74,10 @@ using System.Text;
 		   => 1.012.321.448 Blake2B in 1131s or 18,85m
 		   => 895.068 Blake2B/s or 53.704.056 Blake2B/m
 
-		1. If you use `emacs` as your editor, use file `~/.emacs.d/init.el`
-		   and (global-auto-revert-mode 1) to have a real-time view of your program,
-		   if you run this using a pipe on GNU/Linux and also on Windows
+		1. You should use `emacs` as your editor, using file `~/.emacs.d/init.el`
+		   and (global-auto-revert-mode 1), to have a real-time view of your program.
+
+		2. You run this program using a pipe, on GNU/Linux and on Windows...
 
 		   $ mono ./YourProgram.exe > './YourPrograms output.txt'
 
