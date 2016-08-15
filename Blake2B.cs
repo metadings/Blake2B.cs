@@ -195,7 +195,7 @@ namespace Blake2
 			buf[offset] = (byte)value;
 		}
 
-		public override void Initialize()
+		public virtual ulong[] Prepare()
 		{
 			var rawConfig = new ulong[8];
 
@@ -207,7 +207,7 @@ namespace Blake2
 			{
 				if (Key.Length > 64)
 					throw new ArgumentException("Key", "Key too long");
-				
+
 				rawConfig[0] |= (ulong)((uint)Key.Length << 8);
 			}
 
@@ -243,7 +243,12 @@ namespace Blake2
 				rawConfig[7] = BytesToUInt64(Personalization, 8);
 			}
 
-			Initialize(rawConfig);
+			return rawConfig;
+		}
+
+		public override void Initialize()
+		{
+			Initialize(Prepare());
 		}
 
 		/* public static void ConfigBSetNode(ulong[] rawConfig, byte depth, ulong nodeOffset)
