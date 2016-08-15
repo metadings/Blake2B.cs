@@ -30,6 +30,13 @@ using System.Text;
 
 	using (var hash = new Blake2B()) value = hash.ComputeHash(bytes);
 
+
+	foreach (byte v in value)
+	{
+		Console.Write("{0:x2}", v);
+	}
+	Console.WriteLine();
+
 ```
 
 **Usage 2**
@@ -59,10 +66,18 @@ using System.Text;
 
 			hash.Compute(hashValue, hashSource);
 
+
 			// if (Quersumme(i + 1) == 1) Console.WriteLine ...
 
 		} while (UInt64.MaxValue > (i += 1)); // threadC));
 	}
+
+
+	foreach (byte v in hashValue)
+	{
+		Console.Write("{0:x2}", v);
+	}
+	Console.WriteLine();
 
 ```
 
