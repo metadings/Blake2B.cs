@@ -64,7 +64,10 @@ using System.Text;
 
 			// if (Quersumme(i + 1) == 1) Console.WriteLine ...
 
-		} while (0 < ++i); // while (threadI < (i += threadC));
+		} while (0 < ++i && i < UInt32.MaxValue);
+
+		/* You should also try this using System.Threading.Thread! *
+		} while (threadI < (i += threadC)); /**/
 	}
 
 	foreach (byte v in hashValue) Console.Write("{0:x2}", v);
