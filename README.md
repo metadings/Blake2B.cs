@@ -78,7 +78,7 @@ using System.Text;
 		   and (global-auto-revert-mode 1) to have a real-time view of your program,
 		   if you run this using a pipe on GNU/Linux and also on Windows
 
-		   $ mono ./YourProgram.exe > './YourProgram's output.txt'
+		   $ mono ./YourProgram.exe > './YourPrograms output.txt'
 
 		2. You should also try this using new System.Threading.Thread's:
 
