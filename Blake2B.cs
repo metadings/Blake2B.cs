@@ -361,15 +361,12 @@ namespace Blake2
 
 						Compress(buffer, blockBytesDone);
 					}
-					if (blocksDone > 0)
-					{
-						blockBytesDone = --blocksDone * BlockSizeInBytes;
+					blockBytesDone = --blocksDone * BlockSizeInBytes;
 
-						bufferFilled = bufferFilled - blockBytesDone;
-						if (bufferFilled > 0)
-						{
-							Buffer.BlockCopy(buffer, blockBytesDone, buffer, 0, bufferFilled);
-						}
+					bufferFilled = bufferFilled - blockBytesDone;
+					if (bufferFilled > 0)
+					{
+						Buffer.BlockCopy(buffer, blockBytesDone, buffer, 0, bufferFilled);
 					}
 				}
 
