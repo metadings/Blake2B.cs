@@ -137,7 +137,7 @@ namespace Blake2
 		private bool _isInitialized = false;
 
 		private int bufferFilled;
-		private byte[] buffer = new byte[128];
+		private byte[] buffer = new byte[256];
 		private ulong[] hash = new ulong[8];
 		private ulong[] material = new ulong[16];
 		private ulong _counter0;
@@ -279,6 +279,12 @@ namespace Blake2
 			if (Key != null) HashCore(Key, 0, Key.Length);
 		}
 
+		protected override void Dispose(bool disposing)
+		{
+			if (disposing) HashClear();
+			base.Dispose(disposing);
+		}
+
 		public virtual void HashClear()
 		{
 			_isInitialized = false;
@@ -335,36 +341,36 @@ namespace Blake2
 
 			if (!_isInitialized) Initialize();
 
-			int bufferRemaining = BlockSizeInBytes - bufferFilled;
-			if (bufferFilled > 0 && count > bufferRemaining)
+			int bytesDone = 0, bytesToFill;
+			int offset = start, blocksDone, blockBytesDone;
+			do
 			{
-				Buffer.BlockCopy(array, start, buffer, bufferFilled, bufferRemaining);
-				_counter0 += BlockSizeInBytes;
-				if (_counter0 == 0) _counter1++;
+				bytesToFill = Math.Min(count - offset, buffer.Length - bufferFilled);
+				Buffer.BlockCopy(array, offset, buffer, bufferFilled, bytesToFill);
 
-				Compress(buffer, 0);
+				bytesDone += bytesToFill;
+				bufferFilled += bytesToFill;
+				offset += bytesToFill;
 
-				start += bufferRemaining;
-				count -= bufferRemaining;
-				bufferFilled = 0;
-			}
+				if (bufferFilled >= BlockSizeInBytes)
+				{
+					for (blocksDone = 0; (blockBytesDone = blocksDone * BlockSizeInBytes) < bufferFilled; ++blocksDone)
+					{
+						_counter0 += BlockSizeInBytes;
+						if (_counter0 == 0) ++_counter1;
 
-			while (count > BlockSizeInBytes)
-			{
-				_counter0 += BlockSizeInBytes;
-				if (_counter0 == 0) _counter1++;
+						Compress(buffer, blockBytesDone);
+					}
+					blockBytesDone = --blocksDone * BlockSizeInBytes;
 
-				Compress(array, start);
+					bufferFilled = bufferFilled - blockBytesDone;
+					if (bufferFilled > 0)
+					{
+						Buffer.BlockCopy(buffer, blockBytesDone, buffer, 0, bufferFilled);
+					}
+				}
 
-				start += BlockSizeInBytes;
-				count -= BlockSizeInBytes;
-			}
-
-			if (count > 0)
-			{
-				Buffer.BlockCopy(array, start, buffer, bufferFilled, count);
-				bufferFilled += count;
-			}
+			} while (bytesDone < count && offset < array.Length);
 		}
 
 		protected override void HashCore(byte[] array, int start, int count)
@@ -415,7 +421,7 @@ namespace Blake2
 			// Output
 			for (int i = 0; i < 8; ++i) UInt64ToBytes(hash[i], _hash, i << 3);
 
-			HashClear();
+			_isInitialized = false;
 		}
 
 		public virtual void Compute(byte[] value, byte[] sourceCode)
@@ -430,12 +436,6 @@ namespace Blake2
 			Core(sourceCode, 0, sourceCode.Length);
 			Final(value);
 			return value;
-		}
-
-		protected override void Dispose(bool disposing)
-		{
-			if (disposing) HashClear();
-			base.Dispose(disposing);
 		}
 	}
 }
