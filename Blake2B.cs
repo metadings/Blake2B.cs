@@ -1,4 +1,4 @@
-﻿/*	BLAKE2 reference source code package - C# implementation
+﻿/*	Blake2B.cs source code package - C# implementation
 
 	Written in 2012 by Samuel Neves <sneves@dei.uc.pt>
 	Written in 2012 by Christian Winnerlein <codesinchaos@gmail.com>
@@ -11,11 +11,8 @@
 	You should have received a copy of the CC0 Public Domain Dedication along with
 	this software. If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
 */
-
 using System;
-using System.Collections.Generic;
 using System.Security.Cryptography;
-using System.Text;
 
 namespace Blake2
 {
@@ -328,6 +325,11 @@ namespace Blake2
 
 		partial void Compress(byte[] block, int start);
 
+		protected override void HashCore(byte[] array, int start, int count)
+		{
+			Core(array, start, count);
+		}
+
 		public virtual void Core(byte[] array, int start, int count)
 		{
 			if (array == null)
@@ -343,7 +345,6 @@ namespace Blake2
 
 			int bytesDone = 0, bytesToFill;
 			int blocksDone, blockBytesDone;
-			int i;
 			do
 			{
 				bytesToFill = Math.Min(count, buffer.Length - bufferFilled);
@@ -370,16 +371,11 @@ namespace Blake2
 					if (bufferFilled > 0)
 					{
 						Buffer.BlockCopy(buffer, blockBytesDone, buffer, 0, bufferFilled);
-						for (i = bufferFilled; i < buffer.Length; ++i) buffer[i] = 0x00;
+						for (int i = bufferFilled; i < buffer.Length; ++i) buffer[i] = 0x00;
 					}
 				}
 
 			} while (bytesDone < count);
-		}
-
-		protected override void HashCore(byte[] array, int start, int count)
-		{
-			Core(array, start, count);
 		}
 
 		protected override byte[] HashFinal ()
