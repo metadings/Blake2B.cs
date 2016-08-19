@@ -369,6 +369,7 @@ namespace Blake2
 					if (bufferFilled > 0)
 					{
 						Buffer.BlockCopy(buffer, blockBytesDone, buffer, 0, bufferFilled);
+						for (i = bufferFilled; i < buffer.Length; ++i) buffer[i] = 0x00;
 					}
 				}
 
