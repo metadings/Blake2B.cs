@@ -343,6 +343,7 @@ namespace Blake2
 
 			int bytesDone = 0, bytesToFill;
 			int blocksDone, blockBytesDone;
+			int i;
 			do
 			{
 				bytesToFill = Math.Min(count, buffer.Length - bufferFilled);
