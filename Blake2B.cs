@@ -342,15 +342,16 @@ namespace Blake2
 			if (!_isInitialized) Initialize();
 
 			int bytesDone = 0, bytesToFill;
-			int offset = start, blocksDone, blockBytesDone;
+			int blocksDone, blockBytesDone;
 			do
 			{
-				bytesToFill = Math.Min(count - offset, buffer.Length - bufferFilled);
-				Buffer.BlockCopy(array, offset, buffer, bufferFilled, bytesToFill);
+				bytesToFill = Math.Min(count, buffer.Length - bufferFilled);
+				Buffer.BlockCopy(array, start, buffer, bufferFilled, bytesToFill);
 
 				bytesDone += bytesToFill;
 				bufferFilled += bytesToFill;
-				offset += bytesToFill;
+				count -= bytesToFill;
+				start += bytesToFill;
 
 				if (bufferFilled >= BlockSizeInBytes)
 				{
@@ -361,16 +362,17 @@ namespace Blake2
 
 						Compress(buffer, blockBytesDone);
 					}
-					blockBytesDone = --blocksDone * BlockSizeInBytes;
 
-					bufferFilled = bufferFilled - blockBytesDone;
+					blockBytesDone = --blocksDone * BlockSizeInBytes;
+					bufferFilled -= blockBytesDone;
+
 					if (bufferFilled > 0)
 					{
 						Buffer.BlockCopy(buffer, blockBytesDone, buffer, 0, bufferFilled);
 					}
 				}
 
-			} while (bytesDone < count && offset < array.Length);
+			} while (bytesDone < count && start + count < array.Length);
 		}
 
 		protected override void HashCore(byte[] array, int start, int count)
