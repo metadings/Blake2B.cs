@@ -374,7 +374,7 @@ namespace Blake2
 					}
 				}
 
-			} while (bytesDone < count && start + count < array.Length);
+			} while (bytesDone < count);
 		}
 
 		protected override void HashCore(byte[] array, int start, int count)
