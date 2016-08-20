@@ -295,10 +295,10 @@ namespace Blake2
 			hash[6] = IV6;
 			hash[7] = IV7;
 
-			counter0 = 0;
-			counter1 = 0;
-			finalizationFlag0 = 0;
-			finalizationFlag1 = 0;
+			counter0 = 0UL;
+			counter1 = 0UL;
+			finalizationFlag0 = 0UL;
+			finalizationFlag1 = 0UL;
 
 			for (int i = 0; i < buffer.Length; ++i) buffer[i] = 0x00;
 			bufferFilled = 0;
@@ -356,17 +356,17 @@ namespace Blake2
 
 				if (bufferFilled >= BlockSizeInBytes)
 				{
-					for (blocksDone = 0; (blockBytesDone = blocksDone * BlockSizeInBytes) < bufferFilled; ++blocksDone)
+					for (blockBytesDone = 0, blocksDone = 0; blocksDone * BlockSizeInBytes < bufferFilled; ++blocksDone)
 					{
+						blockBytesDone = blocksDone * BlockSizeInBytes;
+
 						counter0 += BlockSizeInBytes;
-						if (counter0 == 0) ++counter1;
+						if (counter0 == 0UL) ++counter1;
 
 						Compress(buffer, blockBytesDone);
 					}
 
-					blockBytesDone = --blocksDone * BlockSizeInBytes;
 					bufferFilled -= blockBytesDone;
-
 					if (bufferFilled > 0)
 					{
 						Buffer.BlockCopy(buffer, blockBytesDone, buffer, 0, bufferFilled);
