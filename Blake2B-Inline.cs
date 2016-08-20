@@ -31,14 +31,14 @@ namespace Blake2
 					material[i] = BytesToUInt64(block, start + (i << 3));
 			}
 
-			ulong v0 = hash[0];
-			ulong v1 = hash[1];
-			ulong v2 = hash[2];
-			ulong v3 = hash[3];
-			ulong v4 = hash[4];
-			ulong v5 = hash[5];
-			ulong v6 = hash[6];
-			ulong v7 = hash[7];
+			ulong v0 = state[0];
+			ulong v1 = state[1];
+			ulong v2 = state[2];
+			ulong v3 = state[3];
+			ulong v4 = state[4];
+			ulong v5 = state[5];
+			ulong v6 = state[6];
+			ulong v7 = state[7];
 
 			ulong v8 = IV0;
 			ulong v9 = IV1;
@@ -164,14 +164,14 @@ namespace Blake2
 				v4 = ((v4 >> 63) | (v4 << (64 - 63)));
 			}
 
-			hash[0] ^= v0 ^ v8;
-			hash[1] ^= v1 ^ v9;
-			hash[2] ^= v2 ^ v10;
-			hash[3] ^= v3 ^ v11;
-			hash[4] ^= v4 ^ v12;
-			hash[5] ^= v5 ^ v13;
-			hash[6] ^= v6 ^ v14;
-			hash[7] ^= v7 ^ v15;
+			state[0] ^= v0 ^ v8;
+			state[1] ^= v1 ^ v9;
+			state[2] ^= v2 ^ v10;
+			state[3] ^= v3 ^ v11;
+			state[4] ^= v4 ^ v12;
+			state[5] ^= v5 ^ v13;
+			state[6] ^= v6 ^ v14;
+			state[7] ^= v7 ^ v15;
 		}
 	}
 #endif

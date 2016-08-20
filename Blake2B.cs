@@ -109,7 +109,7 @@ namespace Blake2
 				// if (m_bDisposed) throw new ObjectDisposedException(null);
 				// if (State != 0) throw new CryptographicUnexpectedOperationException(Environment.GetResourceString("Cryptography_HashNotYetFinalized"));
 				var result = new byte[HashSizeInBytes];
-				for (int i = 0; i < 8; ++i) UInt64ToBytes(hash[i], result, i << 3);
+				for (int i = 0; i < 8; ++i) UInt64ToBytes(state[i], result, i << 3);
 				return result;
 			}
 		}
@@ -135,7 +135,7 @@ namespace Blake2
 
 		private int bufferFilled;
 		private byte[] buffer = new byte[512];
-		private ulong[] hash = new ulong[8];
+		private ulong[] state = new ulong[8];
 		private ulong[] material = new ulong[16];
 		private ulong counter0;
 		private ulong counter1;
@@ -269,7 +269,7 @@ namespace Blake2
 
 			HashClear();
 
-			for (int i = 0; i < 8; i++) hash[i] ^= config[i];
+			for (int i = 0; i < 8; i++) state[i] ^= config[i];
 
 			isInitialized = true;
 
@@ -286,14 +286,14 @@ namespace Blake2
 		{
 			isInitialized = false;
 
-			hash[0] = IV0;
-			hash[1] = IV1;
-			hash[2] = IV2;
-			hash[3] = IV3;
-			hash[4] = IV4;
-			hash[5] = IV5;
-			hash[6] = IV6;
-			hash[7] = IV7;
+			state[0] = IV0;
+			state[1] = IV1;
+			state[2] = IV2;
+			state[3] = IV3;
+			state[4] = IV4;
+			state[5] = IV5;
+			state[6] = IV6;
+			state[7] = IV7;
 
 			counter0 = 0UL;
 			counter1 = 0UL;
@@ -303,7 +303,9 @@ namespace Blake2
 			for (int i = 0; i < buffer.Length; ++i) buffer[i] = 0x00;
 			bufferFilled = 0;
 
-			for (int i = 0; i < material.Length; ++i) material[i] = 0UL;
+			for (int i = 0; i < 8; ++i) state[i] = 0UL;
+
+			for (int i = 0; i < 16; ++i) material[i] = 0UL;
 
 			if (Personalization != null)
 			{
@@ -343,7 +345,7 @@ namespace Blake2
 			if (!isInitialized) Initialize();
 
 			int bytesDone = 0, bytesToFill;
-			int blocksDone, blockBytesDone;
+			int blockBytesDone;
 			do
 			{
 				bytesToFill = Math.Min(count, buffer.Length - bufferFilled);
@@ -354,45 +356,40 @@ namespace Blake2
 				count -= bytesToFill;
 				start += bytesToFill;
 
-				if (bufferFilled >= BlockSizeInBytes)
+				for (blockBytesDone = 0; blockBytesDone + BlockSizeInBytes <= bufferFilled; )
 				{
-					for (blockBytesDone = 0, blocksDone = 0; (blocksDone + 1) * BlockSizeInBytes <= bufferFilled; ++blocksDone)
-					{
-						blockBytesDone = blocksDone * BlockSizeInBytes;
+					counter0 += BlockSizeInBytes;
+					if (counter0 == 0UL) ++counter1;
 
-						counter0 += BlockSizeInBytes;
-						if (counter0 == 0UL) ++counter1;
+					Compress(buffer, blockBytesDone);
 
-						Compress(buffer, blockBytesDone);
-					}
+					blockBytesDone += BlockSizeInBytes;
+				}
 
-					bufferFilled -= blockBytesDone;
-					if (bufferFilled > 0)
-					{
-						Buffer.BlockCopy(buffer, blockBytesDone, buffer, 0, bufferFilled);
-						// for (int i = bufferFilled; i < buffer.Length; ++i) buffer[i] = 0x00;
-					}
+				bufferFilled -= blockBytesDone;
+				if (bufferFilled > 0)
+				{
+					Buffer.BlockCopy(buffer, blockBytesDone, buffer, 0, bufferFilled);
+					// for (int i = bufferFilled; i < buffer.Length; ++i) buffer[i] = 0x00;
 				}
 
 			} while (count > 0);
 		}
 
-		protected override byte[] HashFinal ()
+		protected override byte[] HashFinal()
 		{
-			return HashFinal(false);
-		}
-
-		protected virtual byte[] HashFinal(bool isEndOfLayer)
-		{
-			var result = new byte[HashSizeInBytes];
-			Final(result, isEndOfLayer);
-			return result;
+			return Final(false);
 		}
 
 		public virtual byte[] Final()
 		{
+			return Final(false);
+		}
+
+		public virtual byte[] Final(bool isEndOfLayer)
+		{
 			var result = new byte[HashSizeInBytes];
-			Final(result, false);
+			Final(result, isEndOfLayer);
 			return result;
 		}
 
@@ -413,12 +410,12 @@ namespace Blake2
 			finalizationFlag0 = ulong.MaxValue;
 			if (isEndOfLayer) finalizationFlag1 = ulong.MaxValue;
 
-			for (int i = bufferFilled; i < BlockSizeInBytes; i++) buffer[i] = 0x00;
+			for (int i = bufferFilled; i < BlockSizeInBytes; ++i) buffer[i] = 0x00;
 
 			Compress(buffer, 0);
 
 			// Output
-			for (int i = 0; i < 8; ++i) UInt64ToBytes(this.hash[i], hash, i << 3);
+			for (int i = 0; i < 8; ++i) UInt64ToBytes(state[i], hash, i << 3);
 
 			isInitialized = false;
 		}
@@ -431,10 +428,8 @@ namespace Blake2
 
 		public virtual byte[] Compute(byte[] sourceCode)
 		{
-			var value = new byte[HashSizeInBytes];
 			Core(sourceCode, 0, sourceCode.Length);
-			Final(value);
-			return value;
+			return Final();
 		}
 	}
 }

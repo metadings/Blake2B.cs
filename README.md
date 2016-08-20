@@ -71,8 +71,8 @@ using System.Text;
 		/* DANGER: Your program will run FOR HOURS !
 
 		   Intel Pentium Dual CPU E2160 @ 1.80GHz x2
-		   => 1.012.321.448 Blake2B in 1131s or 18,85m
-		   => 895.068 Blake2B/s or 53.704.056 Blake2B/m
+		   => 100.000.000 Blake2B in 159s or 2,5m
+		   => 628.930 Blake2B/s or 37.735.849 Blake2B/m
 
 		1. Run this using a pipe, on GNU/Linux and on Windows
 

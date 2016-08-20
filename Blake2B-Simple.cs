@@ -47,14 +47,14 @@ namespace Blake2
 			for (int i = 0; i < 16; ++i)
 				material[i] = BytesToUInt64(block, start + (i << 3));
 
-			v[0] = hash[0];
-			v[1] = hash[1];
-			v[2] = hash[2];
-			v[3] = hash[3];
-			v[4] = hash[4];
-			v[5] = hash[5];
-			v[6] = hash[6];
-			v[7] = hash[7];
+			v[0] = state[0];
+			v[1] = state[1];
+			v[2] = state[2];
+			v[3] = state[3];
+			v[4] = state[4];
+			v[5] = state[5];
+			v[6] = state[6];
+			v[7] = state[7];
 
 			v[8] = IV0;
 			v[9] = IV1;
@@ -78,7 +78,7 @@ namespace Blake2
 			}
 
 			for (int i = 0; i < 8; ++i)
-				hash[i] ^= v[i] ^ v[i + 8];
+				state[i] ^= v[i] ^ v[i + 8];
 		}
 	}
 #endif
