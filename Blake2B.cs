@@ -356,7 +356,7 @@ namespace Blake2
 
 				if (bufferFilled >= BlockSizeInBytes)
 				{
-					for (blockBytesDone = 0, blocksDone = 0; (blocksDone + 1) * BlockSizeInBytes < bufferFilled; ++blocksDone)
+					for (blockBytesDone = 0, blocksDone = 0; (blocksDone + 1) * BlockSizeInBytes <= bufferFilled; ++blocksDone)
 					{
 						blockBytesDone = blocksDone * BlockSizeInBytes;
 
