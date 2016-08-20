@@ -108,9 +108,9 @@ namespace Blake2
 			get {
 				// if (m_bDisposed) throw new ObjectDisposedException(null);
 				// if (State != 0) throw new CryptographicUnexpectedOperationException(Environment.GetResourceString("Cryptography_HashNotYetFinalized"));
-				var _hash = new byte[HashSizeInBytes];
-				for (int i = 0; i < 8; ++i) UInt64ToBytes(hash[i], _hash, i << 3);
-				return _hash;
+				var result = new byte[HashSizeInBytes];
+				for (int i = 0; i < 8; ++i) UInt64ToBytes(hash[i], result, i << 3);
+				return result;
 			}
 		}
 
@@ -356,7 +356,7 @@ namespace Blake2
 
 				if (bufferFilled >= BlockSizeInBytes)
 				{
-					for (blockBytesDone = 0, blocksDone = 0; blocksDone * BlockSizeInBytes < bufferFilled; ++blocksDone)
+					for (blockBytesDone = 0, blocksDone = 0; (blocksDone + 1) * BlockSizeInBytes < bufferFilled; ++blocksDone)
 					{
 						blockBytesDone = blocksDone * BlockSizeInBytes;
 
@@ -374,7 +374,7 @@ namespace Blake2
 					}
 				}
 
-			} while (bytesDone < count);
+			} while (count > 0);
 		}
 
 		protected override byte[] HashFinal ()
