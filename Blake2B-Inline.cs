@@ -23,7 +23,7 @@ namespace Blake2
 		{
 			if (BitConverter.IsLittleEndian)
 			{
-				Buffer.BlockCopy(block, start, m, 0, BlockSizeInBytes);
+				Buffer.BlockCopy(block, start, material, 0, BlockSizeInBytes);
 			}
 			else
 			{
@@ -44,10 +44,10 @@ namespace Blake2
 			ulong v9 = IV1;
 			ulong v10 = IV2;
 			ulong v11 = IV3;
-			ulong v12 = IV4 ^ _counter0;
-			ulong v13 = IV5 ^ _counter1;
-			ulong v14 = IV6 ^ _finalizationFlag0;
-			ulong v15 = IV7 ^ _finalizationFlag1;
+			ulong v12 = IV4 ^ counter0;
+			ulong v13 = IV5 ^ counter1;
+			ulong v14 = IV6 ^ finalizationFlag0;
+			ulong v15 = IV7 ^ finalizationFlag1;
 
 			for (int r = 0; r < NumberOfRounds; ++r)
 			{

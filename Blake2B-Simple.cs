@@ -60,10 +60,10 @@ namespace Blake2
 			v[9] = IV1;
 			v[10] = IV2;
 			v[11] = IV3;
-			v[12] = IV4 ^ _counter0;
-			v[13] = IV5 ^ _counter1;
-			v[14] = IV6 ^ _finalizationFlag0;
-			v[15] = IV7 ^ _finalizationFlag1;
+			v[12] = IV4 ^ counter0;
+			v[13] = IV5 ^ counter1;
+			v[14] = IV6 ^ finalizationFlag0;
+			v[15] = IV7 ^ finalizationFlag1;
 
 			for (int r = 0; r < NumberOfRounds; ++r)
 			{
