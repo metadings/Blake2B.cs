@@ -134,7 +134,7 @@ namespace Blake2
 		private bool _isInitialized = false;
 
 		private int bufferFilled;
-		private byte[] buffer = new byte[256];
+		private byte[] buffer = new byte[512];
 		private ulong[] hash = new ulong[8];
 		private ulong[] material = new ulong[16];
 		private ulong _counter0;
