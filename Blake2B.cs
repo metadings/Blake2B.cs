@@ -14,7 +14,7 @@
 using System;
 using System.Security.Cryptography;
 
-namespace Blake2
+namespace Crypto
 {
 	public partial class Blake2B : HashAlgorithm
 	{

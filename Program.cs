@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Globalization;
 
-namespace Blake2
+namespace Crypto
 {
 	internal static class Program
 	{

@@ -14,7 +14,7 @@
 
 using System;
 
-namespace Blake2
+namespace Crypto
 {
 #if INLINE
 	public partial class Blake2B
