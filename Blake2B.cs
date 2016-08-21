@@ -131,16 +131,32 @@ namespace Crypto
 			// _IntermediateHashSize = 0;
 		}
 
+		#region Consts
+		private static readonly ulong[] c64init384 =
+		{
+			0xCBBB9D5DC1059ED8UL, 0x629A292A367CD507UL, 0x9159015A3070DD17UL, 0x152FECD8F70E5939UL,
+			0x67332667FFC00B31UL, 0x8EB44A8768581511UL, 0xDB0C2E0D64F98FA7UL, 0x47B5481DBEFA4FA4UL
+		};
+
+		private static readonly ulong[] c64init512 =
+		{
+			0x6A09E667F3BCC908UL, 0xBB67AE8584CAA73BUL, 0x3C6EF372FE94F82BUL, 0xA54FF53A5F1D36F1UL,
+			0x510E527FADE682D1UL, 0x9B05688C2B3E6C1FUL, 0x1F83D9ABFB41BD6BUL, 0x5BE0CD19137E2179UL
+		};
+		#endregion
+
 		private bool isInitialized = false;
 
 		private int bufferFilled;
 		private byte[] buffer = new byte[BlockSizeInBytes];
+		private byte[] pad = new byte[BlockSizeInBytes];
 		private ulong[] state = new ulong[8];
 		private ulong[] material = new ulong[16];
+		// private ulong processedBytes;
 		private ulong counter0;
-		private ulong counter1;
+		private ulong counter1; /**/
 		private ulong finalizationFlag0;
-		private ulong finalizationFlag1;
+		private ulong finalizationFlag1; /**/
 
 		public const int NumberOfRounds = 12;
 		public const int BlockSizeInBytes = 128;
@@ -152,7 +168,7 @@ namespace Crypto
 		public const ulong IV4 = 0x510E527FADE682D1UL;
 		public const ulong IV5 = 0x9B05688C2B3E6C1FUL;
 		public const ulong IV6 = 0x1F83D9ABFB41BD6BUL;
-		public const ulong IV7 = 0x5BE0CD19137E2179UL;
+		public const ulong IV7 = 0x5BE0CD19137E2179UL; /**/
 
 		public static readonly int[] Sigma = new int[NumberOfRounds * 16] {
 			0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
@@ -269,6 +285,11 @@ namespace Crypto
 
 			HashClear();
 
+			if (HashSize == 384)
+				Buffer.BlockCopy(c64init384, 0, state, 0, 64);
+			else
+				Buffer.BlockCopy(c64init512, 0, state, 0, 64);
+
 			for (int i = 0; i < 8; i++) state[i] ^= config[i];
 
 			isInitialized = true;
@@ -295,6 +316,7 @@ namespace Crypto
 			state[6] = IV6;
 			state[7] = IV7;
 
+			// processedBytes = 0UL;
 			counter0 = 0UL;
 			counter1 = 0UL;
 			finalizationFlag0 = 0UL;
@@ -303,9 +325,15 @@ namespace Crypto
 			for (int i = 0; i < buffer.Length; ++i) buffer[i] = 0x00;
 			bufferFilled = 0;
 
+			for (int i = 0; i < BlockSizeInBytes; ++i) pad[i] = 0x00;
+
 			for (int i = 0; i < 8; ++i) state[i] = 0UL;
 
 			for (int i = 0; i < 16; ++i) material[i] = 0UL;
+
+			/* for (int i = 0; i < BlockSizeInBytes; ++i) msg[i] = 0x00;
+
+			nullT = false; /**/
 
 			if (Personalization != null)
 			{
@@ -344,33 +372,43 @@ namespace Crypto
 
 			if (!isInitialized) Initialize();
 
-			int bytesDone = 0, bytesToFill;
-			int offset = start;
-			do
+			int bufferRemaining = BlockSizeInBytes - bufferFilled;
+			if (bufferFilled > 0 && count > bufferRemaining)
 			{
-				bytesToFill = Math.Min(count - offset, BlockSizeInBytes);
-				Buffer.BlockCopy(array, offset, buffer, bufferFilled, bytesToFill);
+				Buffer.BlockCopy(array, start, buffer, bufferFilled, bufferRemaining);
+				counter0 += (ulong)BlockSizeInBytes;
+				if (counter0 == 0) ++counter1;
+				// processedBytes += BlockSizeInBytes;
 
-				bytesDone += bytesToFill;
-				bufferFilled += bytesToFill;
-				offset += bytesToFill;
+				Compress(buffer, 0);
 
-				if (bufferFilled == BlockSizeInBytes)
-				{
-					counter0 += BlockSizeInBytes;
-					if (counter0 == 0UL) ++counter1;
+				start += bufferRemaining;
+				count -= bufferRemaining;
+				bufferFilled = 0;
+			}
 
-					Compress(buffer, 0);
+			while (count > BlockSizeInBytes)
+			{
+				// processedBytes += BlockSizeInBytes;
+				counter0 += BlockSizeInBytes;
+				if (counter0 == 0) ++counter1;
 
-					bufferFilled = 0;
-				}
+				Compress(array, start);
 
-			} while (bytesDone < count && offset < array.Length);
+				start += BlockSizeInBytes;
+				count -= BlockSizeInBytes;
+			}
+
+			if (count > 0)
+			{
+				Buffer.BlockCopy(array, start, buffer, bufferFilled, count);
+				bufferFilled += count;
+			}
 		}
 
 		protected override byte[] HashFinal()
 		{
-			return Final(false);
+			return Final();
 		}
 
 		public virtual byte[] Final()
@@ -388,7 +426,7 @@ namespace Crypto
 		public virtual void Final(byte[] hash)
 		{
 			Final(hash, false);
-		}
+		} /**/
 
 		public virtual void Final(byte[] hash, bool isEndOfLayer)
 		{
@@ -398,12 +436,13 @@ namespace Crypto
 			if (!isInitialized) Initialize();
 
 			// Last compression
-			counter0 += (uint)bufferFilled;
+			// processedBytes += (ulong)bufferFilled;
+			counter0 += (ulong)bufferFilled;
+			if (counter0 == 0) ++counter1;
 			finalizationFlag0 = ulong.MaxValue;
 			if (isEndOfLayer) finalizationFlag1 = ulong.MaxValue;
 
-			for (int i = bufferFilled; i < BlockSizeInBytes; ++i) buffer[i] = 0x00;
-
+			for (int i = bufferFilled; i < buffer.Length; i++) buffer[i] = 0x00;
 			Compress(buffer, 0);
 
 			// Output

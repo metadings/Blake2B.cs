@@ -56,7 +56,6 @@ namespace Crypto
 			ulong v5 = state[5];
 			ulong v6 = state[6];
 			ulong v7 = state[7];
-
 			ulong v8 = IV0;
 			ulong v9 = IV1;
 			ulong v10 = IV2;
@@ -65,6 +64,13 @@ namespace Crypto
 			ulong v13 = IV5 ^ counter1;
 			ulong v14 = IV6 ^ finalizationFlag0;
 			ulong v15 = IV7 ^ finalizationFlag1;
+
+			/* if (processedBytes != 0UL)
+			{
+				ulong bits = processedBytes * 8;
+				v12 ^= (uint)(bits >> 4);
+				v13 ^= (uint)(bits);
+			} /**/
 
 			// Rounds
 
@@ -1434,7 +1440,6 @@ namespace Crypto
 			v9 = v9 + v14;
 			v4 ^= v9;
 			v4 = ((v4 >> 63) | (v4 << (64 - 63)));
-
 
 			// Finalization
 			state[0] ^= v0 ^ v8;
