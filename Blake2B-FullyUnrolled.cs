@@ -23,30 +23,30 @@ namespace Crypto
 		{
 			if (BitConverter.IsLittleEndian)
 			{
-				Buffer.BlockCopy(block, start, material, 0, BlockSizeInBytes);
+				Buffer.BlockCopy(block, start, m, 0, BLAKE2B_BLOCKBYTES);
 			}
 			else
 			{
-				for (int i = 0; i < 16; ++i)
-					material[i] = BytesToUInt64(block, start + (i << 3));
+				for (int i = 0; i < (BLAKE2B_BLOCKBYTES / 8); ++i)
+					m[i] = BytesToUInt64(block, start + (i << 3));
 			}
 
-			ulong m0 = material[0];
-			ulong m1 = material[1];
-			ulong m2 = material[2];
-			ulong m3 = material[3];
-			ulong m4 = material[4];
-			ulong m5 = material[5];
-			ulong m6 = material[6];
-			ulong m7 = material[7];
-			ulong m8 = material[8];
-			ulong m9 = material[9];
-			ulong m10 = material[10];
-			ulong m11 = material[11];
-			ulong m12 = material[12];
-			ulong m13 = material[13];
-			ulong m14 = material[14];
-			ulong m15 = material[15];
+			ulong m0 = m[0];
+			ulong m1 = m[1];
+			ulong m2 = m[2];
+			ulong m3 = m[3];
+			ulong m4 = m[4];
+			ulong m5 = m[5];
+			ulong m6 = m[6];
+			ulong m7 = m[7];
+			ulong m8 = m[8];
+			ulong m9 = m[9];
+			ulong m10 = m[10];
+			ulong m11 = m[11];
+			ulong m12 = m[12];
+			ulong m13 = m[13];
+			ulong m14 = m[14];
+			ulong m15 = m[15];
 
 			ulong v0 = state[0];
 			ulong v1 = state[1];
@@ -64,13 +64,6 @@ namespace Crypto
 			ulong v13 = IV5 ^ counter1;
 			ulong v14 = IV6 ^ finalizationFlag0;
 			ulong v15 = IV7 ^ finalizationFlag1;
-
-			/* if (processedBytes != 0UL)
-			{
-				ulong bits = processedBytes * 8;
-				v12 ^= (uint)(bits >> 4);
-				v13 ^= (uint)(bits);
-			} /**/
 
 			// Rounds
 

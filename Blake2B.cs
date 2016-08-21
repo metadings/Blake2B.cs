@@ -131,6 +131,7 @@ namespace Crypto
 			// _IntermediateHashSize = 0;
 		}
 
+		/* 
 		#region Consts
 		private static readonly ulong[] c64init384 =
 		{
@@ -144,22 +145,27 @@ namespace Crypto
 			0x510E527FADE682D1UL, 0x9B05688C2B3E6C1FUL, 0x1F83D9ABFB41BD6BUL, 0x5BE0CD19137E2179UL
 		};
 		#endregion
+		/**/
 
 		private bool isInitialized = false;
 
 		private int bufferFilled;
-		private byte[] buffer = new byte[BlockSizeInBytes];
-		private byte[] pad = new byte[BlockSizeInBytes];
+		private byte[] buffer = new byte[BLAKE2B_BLOCKBYTES * 2];
 		private ulong[] state = new ulong[8];
-		private ulong[] material = new ulong[16];
-		// private ulong processedBytes;
+		private ulong[] m = new ulong[16];
 		private ulong counter0;
-		private ulong counter1; /**/
+		private ulong counter1;
 		private ulong finalizationFlag0;
-		private ulong finalizationFlag1; /**/
+		private ulong finalizationFlag1;
 
-		public const int NumberOfRounds = 12;
-		public const int BlockSizeInBytes = 128;
+		public const int ROUNDS = 12;
+
+		// enum blake2b_constant's
+		public const int BLAKE2B_BLOCKBYTES = 128;
+		public const int BLAKE2B_OUTBYTES = 64;
+		public const int BLAKE2B_KEYBYTES = 64;
+		public const int BLAKE2B_SALTBYTES = 16;
+		public const int BLAKE2B_PERSONALBYTES = 16;
 
 		public const ulong IV0 = 0x6A09E667F3BCC908UL;
 		public const ulong IV1 = 0xBB67AE8584CAA73BUL;
@@ -168,9 +174,9 @@ namespace Crypto
 		public const ulong IV4 = 0x510E527FADE682D1UL;
 		public const ulong IV5 = 0x9B05688C2B3E6C1FUL;
 		public const ulong IV6 = 0x1F83D9ABFB41BD6BUL;
-		public const ulong IV7 = 0x5BE0CD19137E2179UL; /**/
+		public const ulong IV7 = 0x5BE0CD19137E2179UL;
 
-		public static readonly int[] Sigma = new int[NumberOfRounds * 16] {
+		public static readonly int[] Sigma = new int[ROUNDS * 16] {
 			0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
 			14, 10, 4, 8, 9, 15, 13, 6, 1, 12, 0, 2, 11, 7, 5, 3,
 			11, 8, 12, 0, 5, 2, 15, 13, 10, 14, 3, 6, 7, 1, 9, 4,
@@ -285,10 +291,14 @@ namespace Crypto
 
 			HashClear();
 
-			if (HashSize == 384)
-				Buffer.BlockCopy(c64init384, 0, state, 0, 64);
-			else
-				Buffer.BlockCopy(c64init512, 0, state, 0, 64);
+			state[0] = IV0;
+			state[1] = IV1;
+			state[2] = IV2;
+			state[3] = IV3;
+			state[4] = IV4;
+			state[5] = IV5;
+			state[6] = IV6;
+			state[7] = IV7;
 
 			for (int i = 0; i < 8; i++) state[i] ^= config[i];
 
@@ -305,35 +315,20 @@ namespace Crypto
 
 		public virtual void HashClear()
 		{
+			int i;
 			isInitialized = false;
 
-			state[0] = IV0;
-			state[1] = IV1;
-			state[2] = IV2;
-			state[3] = IV3;
-			state[4] = IV4;
-			state[5] = IV5;
-			state[6] = IV6;
-			state[7] = IV7;
-
-			// processedBytes = 0UL;
 			counter0 = 0UL;
 			counter1 = 0UL;
 			finalizationFlag0 = 0UL;
 			finalizationFlag1 = 0UL;
 
-			for (int i = 0; i < buffer.Length; ++i) buffer[i] = 0x00;
+			for (i = 0; i < buffer.Length; ++i) buffer[i] = 0x00;
 			bufferFilled = 0;
 
-			for (int i = 0; i < BlockSizeInBytes; ++i) pad[i] = 0x00;
+			for (i = 0; i < 8; ++i) state[i] = 0UL;
 
-			for (int i = 0; i < 8; ++i) state[i] = 0UL;
-
-			for (int i = 0; i < 16; ++i) material[i] = 0UL;
-
-			/* for (int i = 0; i < BlockSizeInBytes; ++i) msg[i] = 0x00;
-
-			nullT = false; /**/
+			for (i = 0; i < 16; ++i) m[i] = 0UL;
 
 			if (Personalization != null)
 			{
@@ -372,31 +367,29 @@ namespace Crypto
 
 			if (!isInitialized) Initialize();
 
-			int bufferRemaining = BlockSizeInBytes - bufferFilled;
+			int bufferRemaining = BLAKE2B_BLOCKBYTES - bufferFilled;
 			if (bufferFilled > 0 && count > bufferRemaining)
 			{
 				Buffer.BlockCopy(array, start, buffer, bufferFilled, bufferRemaining);
-				counter0 += (ulong)BlockSizeInBytes;
+				counter0 += BLAKE2B_BLOCKBYTES;
 				if (counter0 == 0) ++counter1;
-				// processedBytes += BlockSizeInBytes;
 
 				Compress(buffer, 0);
 
-				start += bufferRemaining;
-				count -= bufferRemaining;
+				start += BLAKE2B_BLOCKBYTES;
+				count -= BLAKE2B_BLOCKBYTES;
 				bufferFilled = 0;
 			}
 
-			while (count > BlockSizeInBytes)
+			while (count > BLAKE2B_BLOCKBYTES)
 			{
-				// processedBytes += BlockSizeInBytes;
-				counter0 += BlockSizeInBytes;
+				counter0 += BLAKE2B_BLOCKBYTES;
 				if (counter0 == 0) ++counter1;
 
 				Compress(array, start);
 
-				start += BlockSizeInBytes;
-				count -= BlockSizeInBytes;
+				start += BLAKE2B_BLOCKBYTES;
+				count -= BLAKE2B_BLOCKBYTES;
 			}
 
 			if (count > 0)
@@ -426,7 +419,7 @@ namespace Crypto
 		public virtual void Final(byte[] hash)
 		{
 			Final(hash, false);
-		} /**/
+		}
 
 		public virtual void Final(byte[] hash, bool isEndOfLayer)
 		{
@@ -435,14 +428,22 @@ namespace Crypto
 
 			if (!isInitialized) Initialize();
 
+			if (bufferFilled > BLAKE2B_BLOCKBYTES)
+			{
+				counter0 += BLAKE2B_BLOCKBYTES;
+				if (counter0 == 0) ++counter1;
+
+				Compress(buffer, 0);
+				bufferFilled = 0;
+			}
+
 			// Last compression
-			// processedBytes += (ulong)bufferFilled;
 			counter0 += (ulong)bufferFilled;
 			if (counter0 == 0) ++counter1;
 			finalizationFlag0 = ulong.MaxValue;
 			if (isEndOfLayer) finalizationFlag1 = ulong.MaxValue;
 
-			for (int i = bufferFilled; i < buffer.Length; i++) buffer[i] = 0x00;
+			for (int i = bufferFilled; i < BLAKE2B_BLOCKBYTES; ++i) buffer[i] = 0x00;
 			Compress(buffer, 0);
 
 			// Output

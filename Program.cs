@@ -61,18 +61,21 @@ namespace Crypto
 			using (var hash = new Blake2B())
 			{
 				var buffer = new byte[128];
-				int bufferC = 0;
-				int bufferL;
+				int bufferL, fileI = 0;
+				long fileL = inFile.Length;
 				do
 				{
-					bufferL = fileIn.Read(buffer, bufferC, bufferC + buffer.Length);
+					bufferL = fileIn.Read(buffer, 0, buffer.Length);
 				
 					if (bufferL > 0)
 					{
 						hash.Core(buffer, 0, bufferL);
 					}
+
+					fileL -= bufferL;
+					fileI += bufferL;
 				
-				} while(bufferL == 0 || (bufferC += buffer.Length) < fileIn.Length);
+				} while(fileL < 0);
 
 				hashValue = hash.Final();
 			}
