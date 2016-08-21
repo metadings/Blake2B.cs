@@ -134,7 +134,7 @@ namespace Blake2
 		private bool isInitialized = false;
 
 		private int bufferFilled;
-		private byte[] buffer = new byte[512];
+		private byte[] buffer = new byte[BlockSizeInBytes];
 		private ulong[] state = new ulong[8];
 		private ulong[] material = new ulong[16];
 		private ulong counter0;
@@ -345,35 +345,27 @@ namespace Blake2
 			if (!isInitialized) Initialize();
 
 			int bytesDone = 0, bytesToFill;
-			int blockBytesDone;
+			int offset = start;
 			do
 			{
-				bytesToFill = Math.Min(count, buffer.Length - bufferFilled);
-				Buffer.BlockCopy(array, start, buffer, bufferFilled, bytesToFill);
+				bytesToFill = Math.Min(count - offset, BlockSizeInBytes);
+				Buffer.BlockCopy(array, offset, buffer, bufferFilled, bytesToFill);
 
 				bytesDone += bytesToFill;
 				bufferFilled += bytesToFill;
-				count -= bytesToFill;
-				start += bytesToFill;
+				offset += bytesToFill;
 
-				for (blockBytesDone = 0; blockBytesDone + BlockSizeInBytes <= bufferFilled; )
+				if (bufferFilled == BlockSizeInBytes)
 				{
 					counter0 += BlockSizeInBytes;
 					if (counter0 == 0UL) ++counter1;
 
-					Compress(buffer, blockBytesDone);
+					Compress(buffer, 0);
 
-					blockBytesDone += BlockSizeInBytes;
+					bufferFilled = 0;
 				}
 
-				bufferFilled -= blockBytesDone;
-				if (bufferFilled > 0)
-				{
-					Buffer.BlockCopy(buffer, blockBytesDone, buffer, 0, bufferFilled);
-					// for (int i = bufferFilled; i < buffer.Length; ++i) buffer[i] = 0x00;
-				}
-
-			} while (count > 0);
+			} while (bytesDone < count && offset < array.Length);
 		}
 
 		protected override byte[] HashFinal()
