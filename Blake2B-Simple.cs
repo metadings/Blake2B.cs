@@ -62,8 +62,8 @@ namespace Crypto
 			v[11] = IV3;
 			v[12] = IV4 ^ counter0;
 			v[13] = IV5 ^ counter1;
-			v[14] = IV6 ^ finalizationFlag0;
-			v[15] = IV7 ^ finalizationFlag1;
+			v[14] = IV6 ^ f0;
+			v[15] = IV7 ^ f1;
 
 			for (int r = 0; r < NumberOfRounds; ++r)
 			{

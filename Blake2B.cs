@@ -150,13 +150,13 @@ namespace Crypto
 		private bool isInitialized = false;
 
 		private int bufferFilled;
-		private byte[] buffer = new byte[BLAKE2B_BLOCKBYTES * 2];
+		private byte[] buffer = new byte[BLAKE2B_BLOCKBYTES];
 		private ulong[] state = new ulong[8];
 		private ulong[] m = new ulong[16];
 		private ulong counter0;
 		private ulong counter1;
-		private ulong finalizationFlag0;
-		private ulong finalizationFlag1;
+		private ulong f0;
+		private ulong f1;
 
 		public const int ROUNDS = 12;
 
@@ -320,8 +320,8 @@ namespace Crypto
 
 			counter0 = 0UL;
 			counter1 = 0UL;
-			finalizationFlag0 = 0UL;
-			finalizationFlag1 = 0UL;
+			f0 = 0UL;
+			f1 = 0UL;
 
 			for (i = 0; i < buffer.Length; ++i) buffer[i] = 0x00;
 			bufferFilled = 0;
@@ -347,6 +347,12 @@ namespace Crypto
 			}
 		}
 
+		void IncrementCounter( ulong inc )
+		{
+			counter0 += inc;
+			if (counter0 == 0) ++counter1;
+		}
+
 		partial void Compress(byte[] block, int start);
 
 		protected override void HashCore(byte[] array, int start, int count)
@@ -367,36 +373,28 @@ namespace Crypto
 
 			if (!isInitialized) Initialize();
 
-			int bufferRemaining = BLAKE2B_BLOCKBYTES - bufferFilled;
-			if (bufferFilled > 0 && count > bufferRemaining)
+			int bytesDone = 0, bytesToFill;
+			int offset = start;
+			do
 			{
-				Buffer.BlockCopy(array, start, buffer, bufferFilled, bufferRemaining);
-				counter0 += BLAKE2B_BLOCKBYTES;
-				if (counter0 == 0) ++counter1;
+				bytesToFill = Math.Min(count - offset, BLAKE2B_BLOCKBYTES);
+				Buffer.BlockCopy(array, offset, buffer, bufferFilled, bytesToFill);
 
-				Compress(buffer, 0);
+				bytesDone += bytesToFill;
+				bufferFilled += bytesToFill;
+				offset += bytesToFill;
 
-				start += BLAKE2B_BLOCKBYTES;
-				count -= BLAKE2B_BLOCKBYTES;
-				bufferFilled = 0;
-			}
+				if (bufferFilled == BLAKE2B_BLOCKBYTES)
+				{
+					IncrementCounter((ulong)BLAKE2B_BLOCKBYTES);
+					Compress(buffer, 0);
 
-			while (count > BLAKE2B_BLOCKBYTES)
-			{
-				counter0 += BLAKE2B_BLOCKBYTES;
-				if (counter0 == 0) ++counter1;
+					start += BLAKE2B_BLOCKBYTES;
+					count -= BLAKE2B_BLOCKBYTES;
+					bufferFilled = 0;
+				}
 
-				Compress(array, start);
-
-				start += BLAKE2B_BLOCKBYTES;
-				count -= BLAKE2B_BLOCKBYTES;
-			}
-
-			if (count > 0)
-			{
-				Buffer.BlockCopy(array, start, buffer, bufferFilled, count);
-				bufferFilled += count;
-			}
+			} while (bytesDone < count && offset < array.Length);
 		}
 
 		protected override byte[] HashFinal()
@@ -428,20 +426,11 @@ namespace Crypto
 
 			if (!isInitialized) Initialize();
 
-			if (bufferFilled > BLAKE2B_BLOCKBYTES)
-			{
-				counter0 += BLAKE2B_BLOCKBYTES;
-				if (counter0 == 0) ++counter1;
-
-				Compress(buffer, 0);
-				bufferFilled = 0;
-			}
-
 			// Last compression
-			counter0 += (ulong)bufferFilled;
-			if (counter0 == 0) ++counter1;
-			finalizationFlag0 = ulong.MaxValue;
-			if (isEndOfLayer) finalizationFlag1 = ulong.MaxValue;
+			IncrementCounter((ulong)bufferFilled);
+
+			f0 = ulong.MaxValue;
+			if (isEndOfLayer) f1 = ulong.MaxValue;
 
 			for (int i = bufferFilled; i < BLAKE2B_BLOCKBYTES; ++i) buffer[i] = 0x00;
 			Compress(buffer, 0);

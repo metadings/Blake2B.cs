@@ -75,7 +75,7 @@ namespace Crypto
 					fileL -= bufferL;
 					fileI += bufferL;
 				
-				} while(fileL < 0);
+				} while(0 < fileL);
 
 				hashValue = hash.Final();
 			}

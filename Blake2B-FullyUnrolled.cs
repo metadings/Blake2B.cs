@@ -62,8 +62,8 @@ namespace Crypto
 			ulong v11 = IV3;
 			ulong v12 = IV4 ^ counter0;
 			ulong v13 = IV5 ^ counter1;
-			ulong v14 = IV6 ^ finalizationFlag0;
-			ulong v15 = IV7 ^ finalizationFlag1;
+			ulong v14 = IV6 ^ f0;
+			ulong v15 = IV7 ^ f1;
 
 			// Rounds
 
