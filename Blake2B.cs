@@ -412,6 +412,7 @@ namespace Crypto
 			get { return _FanOut; }
 			set { 
 				_FanOut = value; 
+				rawConfig = null;
 				isInitialized = false;
 			}
 		}
@@ -423,6 +424,7 @@ namespace Crypto
 			get { return _MaxHeight; }
 			set { 
 				_MaxHeight = value; 
+				rawConfig = null;
 				isInitialized = false;
 			}
 		}
@@ -434,6 +436,7 @@ namespace Crypto
 			get { return _LeafSize; }
 			set { 
 				_LeafSize = value; 
+				rawConfig = null;
 				isInitialized = false;
 			}
 		}
@@ -445,6 +448,7 @@ namespace Crypto
 			get { return _IntermediateHashSize; }
 			set { 
 				_IntermediateHashSize = value; 
+				rawConfig = null;
 				isInitialized = false;
 			}
 		}
@@ -457,6 +461,7 @@ namespace Crypto
 			get { return _Personalization; }
 			set { 
 				_Personalization = value; 
+				rawConfig = null;
 				isInitialized = false;
 			}
 		}
@@ -468,6 +473,7 @@ namespace Crypto
 			get { return _Salt; }
 			set { 
 				_Salt = value; 
+				rawConfig = null;
 				isInitialized = false;
 			}
 		}
@@ -479,6 +485,7 @@ namespace Crypto
 			get { return _Key; }
 			set { 
 				_Key = value; 
+				rawConfig = null;
 				isInitialized = false;
 			}
 		}
