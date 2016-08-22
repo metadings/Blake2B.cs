@@ -71,6 +71,7 @@ namespace Crypto
 		// enum blake2b_constant's
 		public const int BLAKE2B_BUFFERBYTES = 128 * 4;
 		public const int BLAKE2B_BLOCKBYTES = 128;
+		public const int BLAKE2B_BLOCKUINT64S = 16;
 		public const int BLAKE2B_OUTBYTES = 64;
 		public const int BLAKE2B_KEYBYTES = 64;
 		public const int BLAKE2B_SALTBYTES = 16;

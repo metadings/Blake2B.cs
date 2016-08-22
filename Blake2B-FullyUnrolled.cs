@@ -29,7 +29,7 @@ namespace Crypto
 				}
 				else
 				{
-					for (int i = 0; i < (BLAKE2B_BLOCKBYTES / 8); ++i)
+					for (int i = 0; i < BLAKE2B_BLOCKUINT64S; ++i)
 						m[i] = BytesToUInt64(block, start + (i << 3));
 				}
 			}
