@@ -377,7 +377,7 @@ namespace Crypto
 			}
 			else
 			{
-				for (int i = 0; i < 8; ++i)
+				for (int i = 0; i < HashSizeInUInt64; ++i)
 					UInt64ToBytes(state[i], hash, i << 3);
 			}
 
@@ -410,7 +410,7 @@ namespace Crypto
 				}
 				else
 				{
-					for (int i = 0; i < 8; ++i)
+					for (int i = 0; i < HashSizeInUInt64; ++i)
 						UInt64ToBytes(state[i], hash, i << 3);
 				}
 				return hash;
