@@ -431,16 +431,16 @@ namespace Crypto
 
 		public virtual byte[] Final()
 		{
-			var result = new byte[HashSizeInBytes];
-			Final(result);
-			return result;
+			var hash = new byte[HashSizeInBytes];
+			Final(hash);
+			return hash;
 		}
 
 		/* public virtual byte[] Final(bool isEndOfLayer)
 		{
-			var result = new byte[HashSizeInBytes];
-			Final(result, isEndOfLayer);
-			return result;
+			var hash = new byte[HashSizeInBytes];
+			Final(hash, isEndOfLayer);
+			return hash;
 		}
 
 		public virtual void Final(byte[] hash)
@@ -451,7 +451,9 @@ namespace Crypto
 		public virtual void Final(byte[] hash) //, bool isEndOfLayer)
 		{
 			if (hash.Length != HashSizeInBytes)
-				throw new ArgumentOutOfRangeException("_hash", "length must be HashSizeInBytes");
+				throw new ArgumentOutOfRangeException("hash", 
+					string.Format("hash.Length must be {0} HashSizeInBytes",
+						HashSizeInBytes));
 
 			if (!isInitialized) Initialize();
 

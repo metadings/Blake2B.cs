@@ -31,31 +31,13 @@ namespace Crypto
 					m[i] = BytesToUInt64(block, start + (i << 3));
 			}
 
-			ulong m0 = m[0];
-			ulong m1 = m[1];
-			ulong m2 = m[2];
-			ulong m3 = m[3];
-			ulong m4 = m[4];
-			ulong m5 = m[5];
-			ulong m6 = m[6];
-			ulong m7 = m[7];
-			ulong m8 = m[8];
-			ulong m9 = m[9];
-			ulong m10 = m[10];
-			ulong m11 = m[11];
-			ulong m12 = m[12];
-			ulong m13 = m[13];
-			ulong m14 = m[14];
-			ulong m15 = m[15];
+			ulong m0 = m[0], m1 = m[1], m2 = m[2], m3 = m[3];
+			ulong m4 = m[4], m5 = m[5], m6 = m[6], m7 = m[7];
+			ulong m8 = m[8], m9 = m[9], m10 = m[10], m11 = m[11];
+			ulong m12 = m[12], m13 = m[13], m14 = m[14], m15 = m[15];
 
-			ulong v0 = state[0];
-			ulong v1 = state[1];
-			ulong v2 = state[2];
-			ulong v3 = state[3];
-			ulong v4 = state[4];
-			ulong v5 = state[5];
-			ulong v6 = state[6];
-			ulong v7 = state[7];
+			ulong v0 = state[0], v1 = state[1], v2 = state[2], v3 = state[3];
+			ulong v4 = state[4], v5 = state[5], v6 = state[6], v7 = state[7];
 			ulong v8 = IV0;
 			ulong v9 = IV1;
 			ulong v10 = IV2;
