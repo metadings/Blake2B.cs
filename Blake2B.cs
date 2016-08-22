@@ -241,22 +241,6 @@ namespace Crypto
 			for (i = 0; i < BLAKE2B_BUFFERBYTES; ++i) buffer[i] = 0x00;
 			for (i = 0; i < 8; ++i) state[i] = 0UL;
 			for (i = 0; i < 16; ++i) m[i] = 0UL;
-
-			if (Personalization != null)
-			{
-				Array.Clear(Personalization, 0, Personalization.Length);
-				Personalization = null;
-			}
-			if (Salt != null)
-			{
-				Array.Clear(Salt, 0, Salt.Length);
-				Salt = null;
-			}
-			if (Key != null)
-			{
-				Array.Clear(Key, 0, Key.Length);
-				Key = null;
-			}
 		}
 
 		protected bool IsLastNode { get { return f1 != 0; } }
