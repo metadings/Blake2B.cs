@@ -358,13 +358,13 @@ namespace Crypto
 
 		protected void SetLastBlock()
 		{
-			if( !IsLastNode ) SetLastNode();
+			if( IsLastNode ) SetLastNode();
 			f0 = ulong.MaxValue;
 		}
 
 		protected void ClearLastBlock()
 		{
-			if( !IsLastNode ) ClearLastNode();
+			if( IsLastNode ) ClearLastNode();
 			f0 = 0;
 		}
 
@@ -394,16 +394,15 @@ namespace Crypto
 
 			if (!isInitialized) Initialize();
 
-			int bytesDone = 0, bytesToFill;
-			int offset = start, bufferOffset = 0;
+			int bytesToFill, offset = start, bufferOffset = 0;
 			do
 			{
-				bytesToFill = Math.Min(count - offset, BLAKE2B_BUFFERBYTES - bufferFilled);
+				bytesToFill = Math.Min(count, BLAKE2B_BUFFERBYTES - bufferFilled);
 				Buffer.BlockCopy(array, offset, buffer, bufferFilled, bytesToFill);
 
-				bytesDone += bytesToFill;
 				bufferFilled += bytesToFill;
 				offset += bytesToFill;
+				count -= bytesToFill;
 
 				bufferOffset = 0;
 				while (bufferFilled >= BLAKE2B_BLOCKBYTES)
@@ -411,8 +410,6 @@ namespace Crypto
 					IncrementCounter((ulong)BLAKE2B_BLOCKBYTES);
 					Compress(buffer, bufferOffset);
 
-					start += BLAKE2B_BLOCKBYTES;
-					count -= BLAKE2B_BLOCKBYTES;
 					bufferFilled -= BLAKE2B_BLOCKBYTES;
 					bufferOffset += BLAKE2B_BLOCKBYTES;
 				}
@@ -421,7 +418,7 @@ namespace Crypto
 					Buffer.BlockCopy(buffer, bufferOffset, buffer, 0, bufferFilled);
 				}
 
-			} while (bytesDone < count && offset < array.Length);
+			} while (0 < count && offset < array.Length);
 		}
 
 		protected override byte[] HashFinal()
