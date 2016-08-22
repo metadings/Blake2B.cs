@@ -60,7 +60,7 @@ namespace Crypto
 			// using (var fileOut = new FileStream(outFile.FullName))
 			using (var hash = new Blake2B())
 			{
-				var buffer = new byte[128];
+				var buffer = new byte[512];
 				int bufferL, fileI = 0;
 				long fileL = inFile.Length;
 				do
