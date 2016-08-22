@@ -68,11 +68,18 @@ using System.Text;
 
 		} while (0 < ++i && i < UInt32.MaxValue);
 
-		/* DANGER: Your program will run FOR HOURS !
+		/* Beware. Your program will run FOR HOURS !
 
+		   2016-08-22 02.53.00
 		   Intel Pentium Dual CPU E2160 @ 1.80GHz x2
-		   => 100.000.000 Blake2B in 159s or 2,5m
-		   => 628.930 Blake2B/s or 37.735.849 Blake2B/m
+
+		     100.000.000 Blake2B in 02min 12sec
+		   ==  100000000 ÷ (02×60 + 12)
+		   :=    757.576 Blake2B/s
+
+		   1.000.000.000 Blake2B in 21min 48sec
+		   == 1000000000 ÷ (21×60 + 48)
+		   :=    764.526 Blake2B/s
 
 		1. Run this using a pipe, on GNU/Linux and on Windows
 
@@ -82,6 +89,7 @@ using System.Text;
 
 		   Press `M-x auto-revert-mode`
 		   or use file `~/.emacs.d/init.el` with `(global-auto-revert-mode 1)`,
+
 		   to have a real-time view of your program.
 
 		3. Also try this using new System.Threading.Thread's:

@@ -150,7 +150,7 @@ namespace Crypto
 		private bool isInitialized = false;
 
 		private int bufferFilled;
-		private byte[] buffer = new byte[BLAKE2B_BLOCKBYTES];
+		private byte[] buffer = new byte[BLAKE2B_BUFFERBYTES];
 		private ulong[] state = new ulong[8];
 		private ulong[] m = new ulong[16];
 		private ulong counter0;
@@ -161,6 +161,7 @@ namespace Crypto
 		public const int ROUNDS = 12;
 
 		// enum blake2b_constant's
+		public const int BLAKE2B_BUFFERBYTES = 128 * 4;
 		public const int BLAKE2B_BLOCKBYTES = 128;
 		public const int BLAKE2B_OUTBYTES = 64;
 		public const int BLAKE2B_KEYBYTES = 64;
@@ -374,24 +375,30 @@ namespace Crypto
 			if (!isInitialized) Initialize();
 
 			int bytesDone = 0, bytesToFill;
-			int offset = start;
+			int offset = start, bufferOffset = 0;
 			do
 			{
-				bytesToFill = Math.Min(count - offset, BLAKE2B_BLOCKBYTES);
+				bytesToFill = Math.Min(count - offset, BLAKE2B_BUFFERBYTES - bufferFilled);
 				Buffer.BlockCopy(array, offset, buffer, bufferFilled, bytesToFill);
 
 				bytesDone += bytesToFill;
 				bufferFilled += bytesToFill;
 				offset += bytesToFill;
 
-				if (bufferFilled == BLAKE2B_BLOCKBYTES)
+				bufferOffset = 0;
+				while (bufferFilled >= BLAKE2B_BLOCKBYTES)
 				{
 					IncrementCounter((ulong)BLAKE2B_BLOCKBYTES);
-					Compress(buffer, 0);
+					Compress(buffer, bufferOffset);
 
 					start += BLAKE2B_BLOCKBYTES;
 					count -= BLAKE2B_BLOCKBYTES;
-					bufferFilled = 0;
+					bufferFilled -= BLAKE2B_BLOCKBYTES;
+					bufferOffset += BLAKE2B_BLOCKBYTES;
+				}
+				if (bufferFilled > 0)
+				{
+					Buffer.BlockCopy(buffer, bufferOffset, buffer, 0, bufferFilled);
 				}
 
 			} while (bytesDone < count && offset < array.Length);
