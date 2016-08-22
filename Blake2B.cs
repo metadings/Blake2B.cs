@@ -461,7 +461,15 @@ namespace Crypto
 			Compress(buffer, 0);
 
 			// Output
-			for (int i = 0; i < 8; ++i) UInt64ToBytes(state[i], hash, i << 3);
+			if (BitConverter.IsLittleEndian)
+			{
+				Buffer.BlockCopy(state, 0, hash, 0, HashSizeInBytes);
+			}
+			else
+			{
+				for (int i = 0; i < 8; ++i)
+					UInt64ToBytes(state[i], hash, i << 3);
+			}
 
 			isInitialized = false;
 		}
