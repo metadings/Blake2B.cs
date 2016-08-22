@@ -284,6 +284,8 @@ namespace Crypto
 			if (counter0 == 0) ++counter1;
 		}
 
+		// void Compress() { Compress(null, 0); }
+
 		partial void Compress(byte[] block, int start);
 
 		protected override void HashCore(byte[] array, int start, int count)
@@ -396,7 +398,7 @@ namespace Crypto
 			return Final();
 		}
 
-		public override byte[] Hash 
+		public override byte[] Hash
 		{
 			get {
 				// if (m_bDisposed) throw new ObjectDisposedException(null);

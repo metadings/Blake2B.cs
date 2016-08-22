@@ -44,8 +44,18 @@ namespace Crypto
 
 		partial void Compress(byte[] block, int start)
 		{
-			for (int i = 0; i < 16; ++i)
-				material[i] = BytesToUInt64(block, start + (i << 3));
+			if (block != null)
+			{
+				if (BitConverter.IsLittleEndian)
+				{
+					Buffer.BlockCopy(block, start, material, 0, BlockSizeInBytes);
+				}
+				else
+				{
+					for (int i = 0; i < 16; ++i)
+						material[i] = BytesToUInt64(block, start + (i << 3));
+				}
+			}
 
 			v[0] = state[0];
 			v[1] = state[1];

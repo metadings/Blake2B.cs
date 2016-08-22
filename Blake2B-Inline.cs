@@ -21,14 +21,17 @@ namespace Crypto
 	{
 		partial void Compress(byte[] block, int start)
 		{
-			if (BitConverter.IsLittleEndian)
+			if (block != null)
 			{
-				Buffer.BlockCopy(block, start, material, 0, BlockSizeInBytes);
-			}
-			else
-			{
-				for (int i = 0; i < 16; ++i)
-					material[i] = BytesToUInt64(block, start + (i << 3));
+				if (BitConverter.IsLittleEndian)
+				{
+					Buffer.BlockCopy(block, start, material, 0, BlockSizeInBytes);
+				}
+				else
+				{
+					for (int i = 0; i < 16; ++i)
+						material[i] = BytesToUInt64(block, start + (i << 3));
+				}
 			}
 
 			ulong v0 = state[0];
