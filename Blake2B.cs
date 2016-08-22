@@ -324,7 +324,7 @@ namespace Crypto
 			f0 = 0UL;
 			f1 = 0UL;
 
-			for (i = 0; i < buffer.Length; ++i) buffer[i] = 0x00;
+			for (i = 0; i < BLAKE2B_BUFFERBYTES; ++i) buffer[i] = 0x00;
 			bufferFilled = 0;
 
 			for (i = 0; i < 8; ++i) state[i] = 0UL;
