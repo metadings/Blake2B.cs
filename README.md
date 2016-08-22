@@ -21,7 +21,7 @@ Ask questions on [stackoverflow](http://stackoverflow.com/questions/tagged/c%23+
 Have "one" Blake2B hash value.
 
 ```csharp
-using Blake2;
+using Crypto;
 using System;
 using System.Text;
 
@@ -42,7 +42,7 @@ using System.Text;
 Have "many" Blake2B hash values.
 
 ```csharp
-using Blake2;
+using Crypto;
 using System;
 using System.Text;
 
