@@ -348,7 +348,27 @@ namespace Crypto
 			}
 		}
 
-		void IncrementCounter( ulong inc )
+		protected bool IsLastNode { get { return f1 != 0; } }
+
+		protected void SetLastNode() { f1 = ulong.MaxValue; }
+
+		protected void ClearLastNode() { f1 = 0; }
+
+		protected bool IsLastBlock { get { return f0 != 0; } }
+
+		protected void SetLastBlock()
+		{
+			if( !IsLastNode ) SetLastNode();
+			f0 = ulong.MaxValue;
+		}
+
+		protected void ClearLastBlock()
+		{
+			if( !IsLastNode ) ClearLastNode();
+			f0 = 0;
+		}
+
+		protected void IncrementCounter( ulong inc )
 		{
 			counter0 += inc;
 			if (counter0 == 0) ++counter1;
@@ -411,10 +431,12 @@ namespace Crypto
 
 		public virtual byte[] Final()
 		{
-			return Final(false);
+			var result = new byte[HashSizeInBytes];
+			Final(result);
+			return result;
 		}
 
-		public virtual byte[] Final(bool isEndOfLayer)
+		/* public virtual byte[] Final(bool isEndOfLayer)
 		{
 			var result = new byte[HashSizeInBytes];
 			Final(result, isEndOfLayer);
@@ -424,9 +446,9 @@ namespace Crypto
 		public virtual void Final(byte[] hash)
 		{
 			Final(hash, false);
-		}
+		} /**/
 
-		public virtual void Final(byte[] hash, bool isEndOfLayer)
+		public virtual void Final(byte[] hash) //, bool isEndOfLayer)
 		{
 			if (hash.Length != HashSizeInBytes)
 				throw new ArgumentOutOfRangeException("_hash", "length must be HashSizeInBytes");
@@ -435,10 +457,7 @@ namespace Crypto
 
 			// Last compression
 			IncrementCounter((ulong)bufferFilled);
-
-			f0 = ulong.MaxValue;
-			if (isEndOfLayer) f1 = ulong.MaxValue;
-
+			SetLastBlock();
 			for (int i = bufferFilled; i < BLAKE2B_BLOCKBYTES; ++i) buffer[i] = 0x00;
 			Compress(buffer, 0);
 
