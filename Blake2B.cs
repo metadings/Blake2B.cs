@@ -71,7 +71,6 @@ namespace Crypto
 		// enum blake2b_constant's
 		public const int BLAKE2B_BLOCKBYTES = 128;
 		public const int BLAKE2B_BLOCKUINT64S = BLAKE2B_BLOCKBYTES / 8;
-		public const int BLAKE2B_BUFFERBYTES = BLAKE2B_BLOCKBYTES * 4;
 		public const int BLAKE2B_OUTBYTES = 64;
 		public const int BLAKE2B_KEYBYTES = 64;
 		public const int BLAKE2B_SALTBYTES = 16;
@@ -105,7 +104,7 @@ namespace Crypto
 		private bool isInitialized = false;
 
 		private int bufferFilled;
-		private byte[] buffer = new byte[BLAKE2B_BUFFERBYTES];
+		private byte[] buffer = new byte[BLAKE2B_BLOCKBYTES];
 		private ulong[] state = new ulong[8];
 		private ulong[] m = new ulong[16];
 		private ulong counter0;
@@ -238,7 +237,7 @@ namespace Crypto
 
 			bufferFilled = 0;
 			int i;
-			for (i = 0; i < BLAKE2B_BUFFERBYTES; ++i) buffer[i] = 0x00;
+			for (i = 0; i < BLAKE2B_BLOCKBYTES; ++i) buffer[i] = 0x00;
 			for (i = 0; i < 8; ++i) state[i] = 0UL;
 			for (i = 0; i < 16; ++i) m[i] = 0UL;
 		}
@@ -269,54 +268,52 @@ namespace Crypto
 			if (counter0 == 0) ++counter1;
 		}
 
-		// void Compress() { Compress(null, 0); }
-
-		partial void Compress(byte[] block, int start);
-
-		protected override void HashCore(byte[] array, int start, int count)
+		protected override void HashCore(byte[] array, int offset, int length)
 		{
-			Core(array, start, count);
+			Core(array, offset, length);
 		}
 
-		public virtual void Core(byte[] array, int start, int count)
+		public virtual void Core(byte[] array, int offset, int length)
 		{
 			if (array == null)
 				throw new ArgumentNullException("array");
-			if (start < 0)
-				throw new ArgumentOutOfRangeException("start");
-			if (count < 0)
-				throw new ArgumentOutOfRangeException("count");
-			if (start + count > array.Length)
-				throw new ArgumentOutOfRangeException("start + count");
+			if (offset < 0)
+				throw new ArgumentOutOfRangeException("offset");
+			if (length < 0)
+				throw new ArgumentOutOfRangeException("length");
+			if (offset + length > array.Length)
+				throw new ArgumentOutOfRangeException("offset + length");
 
 			if (!isInitialized) Initialize();
 
-			int bytesToFill, offset = start, bufferOffset = 0;
-			do
+			int bytesToFill;
+			while (0 < length)
 			{
-				bytesToFill = Math.Min(count, BLAKE2B_BUFFERBYTES - bufferFilled);
+				bytesToFill = Math.Min(length, BLAKE2B_BLOCKBYTES - bufferFilled);
 				Buffer.BlockCopy(array, offset, buffer, bufferFilled, bytesToFill);
 
 				bufferFilled += bytesToFill;
 				offset += bytesToFill;
-				count -= bytesToFill;
+				length -= bytesToFill;
 
-				bufferOffset = 0;
-				while (bufferFilled >= BLAKE2B_BLOCKBYTES)
+				if (bufferFilled == BLAKE2B_BLOCKBYTES)
 				{
 					IncrementCounter((ulong)BLAKE2B_BLOCKBYTES);
-					Compress(buffer, bufferOffset);
 
-					bufferFilled -= BLAKE2B_BLOCKBYTES;
-					bufferOffset += BLAKE2B_BLOCKBYTES;
-				}
-				if (bufferFilled > 0)
-				{
-					Buffer.BlockCopy(buffer, bufferOffset, buffer, 0, bufferFilled);
-				}
+					if (BitConverter.IsLittleEndian)
+						Buffer.BlockCopy(buffer, 0, m, 0, BLAKE2B_BLOCKBYTES);
+					else
+						for (int i = 0; i < BLAKE2B_BLOCKUINT64S; ++i)
+							m[i] = BytesToUInt64(buffer, (i << 3));
 
-			} while (0 < count && offset < array.Length);
+					Compress();
+
+					bufferFilled = 0;
+				}
+			}
 		}
+
+		partial void Compress();
 
 		protected override byte[] HashFinal()
 		{
@@ -353,20 +350,25 @@ namespace Crypto
 
 			// Last compression
 			IncrementCounter((ulong)bufferFilled);
+
 			SetLastBlock();
+
 			for (int i = bufferFilled; i < BLAKE2B_BLOCKBYTES; ++i) buffer[i] = 0x00;
-			Compress(buffer, 0);
+
+			if (BitConverter.IsLittleEndian)
+				Buffer.BlockCopy(buffer, 0, m, 0, BLAKE2B_BLOCKBYTES);
+			else
+				for (int i = 0; i < BLAKE2B_BLOCKUINT64S; ++i)
+					m[i] = BytesToUInt64(buffer, (i << 3));
+			
+			Compress();
 
 			// Output
 			if (BitConverter.IsLittleEndian)
-			{
 				Buffer.BlockCopy(state, 0, hash, 0, HashSizeInBytes);
-			}
 			else
-			{
 				for (int i = 0; i < HashSizeInUInt64; ++i)
 					UInt64ToBytes(state[i], hash, i << 3);
-			}
 
 			isInitialized = false;
 		}
@@ -392,14 +394,10 @@ namespace Crypto
 				// Output
 				var hash = new byte[HashSizeInBytes];
 				if (BitConverter.IsLittleEndian)
-				{
 					Buffer.BlockCopy(state, 0, hash, 0, HashSizeInBytes);
-				}
 				else
-				{
 					for (int i = 0; i < HashSizeInUInt64; ++i)
 						UInt64ToBytes(state[i], hash, i << 3);
-				}
 				return hash;
 			}
 		}

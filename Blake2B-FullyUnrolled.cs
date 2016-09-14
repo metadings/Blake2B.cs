@@ -19,21 +19,8 @@ namespace Crypto
 #if !INLINE && !SIMPLE
 	public partial class Blake2B
 	{
-		partial void Compress(byte[] block, int start)
+		partial void Compress()
 		{
-			if (block != null)
-			{
-				if (BitConverter.IsLittleEndian)
-				{
-					Buffer.BlockCopy(block, start, m, 0, BLAKE2B_BLOCKBYTES);
-				}
-				else
-				{
-					for (int i = 0; i < BLAKE2B_BLOCKUINT64S; ++i)
-						m[i] = BytesToUInt64(block, start + (i << 3));
-				}
-			}
-
 			ulong m0 = m[0], m1 = m[1], m2 = m[2], m3 = m[3];
 			ulong m4 = m[4], m5 = m[5], m6 = m[6], m7 = m[7];
 			ulong m8 = m[8], m9 = m[9], m10 = m[10], m11 = m[11];
