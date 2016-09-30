@@ -21,7 +21,7 @@ namespace Crypto
 			}
 
 			string format =
-				"      HELP: ./Blake2B.exe --In=./Hallo.txt -- Blake2B{0}"
+					"  HELP: ./Blake2B.exe --In=./Hallo.txt -- Blake2B{0}"
 				+	"        ./Blake2B.exe [ --option=value ] [ -- ] [ command ]{0}"
 				+	"{0}"
 				+	"   COMMAND: Blake2B{0}"
@@ -36,8 +36,10 @@ namespace Crypto
 			if (dictionary.ContainsKey("In"))
 			if (File.Exists(dictionary["In"]))
 				inFile = new FileInfo(dictionary["In"]);
-			if (inFile == null || !inFile.Exists)
-				throw new FileNotFoundException("In (file) not found");
+			if (inFile == null || !inFile.Exists) {
+				Console.WriteLine("Blake2B: --In file not found");
+				return;
+			}
 
 			/* FileInfo outFile;
 			if (dictionary.ContainsKey("Out"))
@@ -85,6 +87,7 @@ namespace Crypto
 		}
 
 
+
 		static Dictionary<string, string> ReadConsoleArguments(string[] args, out int argsI, out string command)
 		{
 			argsI = 0;
@@ -99,28 +102,25 @@ namespace Crypto
 				arg = args[argsI];
 				nameI = arg.IndexOf('=');
 				dashs = arg.StartsWith("--") ? 2 : (arg.StartsWith("-") ? 1 : 0);
-
 				if (dashs > 0)
 				{
 					if (arg.Length == dashs)
 					{
 						break;
 					}
-					if (nameI == -1)
-					{
-						argName = arg.Substring(dashs);
-						dictionary.Add(argName, string.Empty);
-						continue;
-					}
-					else
+					if (nameI > -1)
 					{
 						argName = arg.Substring(dashs, nameI - dashs);
 						arg = arg.Substring(nameI + 1);
 						dictionary.Add(argName, arg);
 						continue;
 					}
+					argName = arg.Substring(dashs);
+					dictionary.Add(argName, string.Empty);
+					continue;
 				}
 
+				--argsI;
 				break;
 			} while (++argsI < args.Length);
 
