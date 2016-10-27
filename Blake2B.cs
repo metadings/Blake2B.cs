@@ -43,29 +43,31 @@ namespace Crypto
 			buf[offset] = (byte)value;
 		}
 
-		public override int HashSize { get { return HashSizeInBytes * 8; } }
+		private readonly int hashSize = 512;
 
-		private int _hashSizeInBytes;
+		public override int HashSize { get { return hashSize; } }
 
-		public int HashSizeInBytes { get { return _hashSizeInBytes; } }
+		public int HashSizeInBytes { get { return hashSize / 8; } }
 
-		public int HashSizeInUInt64 { get { return _hashSizeInBytes / 8; } }
+		public int HashSizeInUInt64 { get { return HashSizeInBytes / 4; } }
 
-		public Blake2B() : this(64) { }
+		public Blake2B()
+		{
+			fanOut = 1;
+			maxHeight = 1;
+			// leafSize = 0;
+			// intermediateHashSize = 0;
+		}
 
-		public Blake2B(int hashSizeInBytes)
+		public Blake2B(int hashSizeInBits)
+			: this()
 		{	
-			if (hashSizeInBytes <= 0 || hashSizeInBytes > 64)
-				throw new ArgumentOutOfRangeException("hashSizeInBytes");
-			if (hashSizeInBytes % 8 != 0)
-				throw new ArgumentOutOfRangeException("hashSizeInBytes", "must be a multiple of 8");
+			if (hashSizeInBits < 1 || hashSizeInBits > 512)
+				throw new ArgumentOutOfRangeException("hashSizeInBits");
+			if (hashSizeInBits % 8 != 0)
+				throw new ArgumentOutOfRangeException("hashSizeInBits", "MUST be a multiple of 8");
 			
-			_hashSizeInBytes = hashSizeInBytes;
-
-			_FanOut = 1;
-			_MaxHeight = 1;
-			// _LeafSize = 0;
-			// _IntermediateHashSize = 0;
+			hashSize = hashSizeInBits;
 		}
 
 		// enum blake2b_constant's
@@ -134,7 +136,7 @@ namespace Crypto
 			var c = new ulong[8];
 
 			// digest length
-			c[0] |= (ulong)(uint)HashSizeInBytes;
+			c[0] |= (ulong)HashSizeInBytes;
 
 			// Key length
 			if (Key != null)
@@ -142,7 +144,7 @@ namespace Crypto
 				if (Key.Length > 64)
 					throw new ArgumentException("Key", "Key too long");
 
-				c[0] |= (ulong)((uint)Key.Length << 8);
+				c[0] |= ((ulong)Key.Length << 8);
 			}
 
 			if (IntermediateHashSize > 64)
@@ -242,13 +244,13 @@ namespace Crypto
 			for (i = 0; i < 16; ++i) m[i] = 0UL;
 		}
 
-		protected bool IsLastNode { get { return f1 != 0; } }
+		protected bool IsLastNode { get { return f1 == ulong.MaxValue; } }
 
 		protected void SetLastNode() { f1 = ulong.MaxValue; }
 
 		protected void ClearLastNode() { f1 = 0; }
 
-		protected bool IsLastBlock { get { return f0 != 0; } }
+		protected bool IsLastBlock { get { return f0 == ulong.MaxValue; } }
 
 		protected void SetLastBlock()
 		{
@@ -403,86 +405,86 @@ namespace Crypto
 		}
 
 
-		private uint _FanOut;
+		private uint fanOut;
 
 		public uint FanOut
 		{ 
-			get { return _FanOut; }
+			get { return fanOut; }
 			set { 
-				_FanOut = value; 
+				fanOut = value; 
 				rawConfig = null;
 				isInitialized = false;
 			}
 		}
 
-		private uint _MaxHeight;
+		private uint maxHeight;
 
 		public uint MaxHeight
 		{ 
-			get { return _MaxHeight; }
+			get { return maxHeight; }
 			set { 
-				_MaxHeight = value; 
+				maxHeight = value; 
 				rawConfig = null;
 				isInitialized = false;
 			}
 		}
 
-		private ulong _LeafSize;
+		private ulong leafSize;
 
 		public ulong LeafSize
 		{ 
-			get { return _LeafSize; }
+			get { return leafSize; }
 			set { 
-				_LeafSize = value; 
+				leafSize = value; 
 				rawConfig = null;
 				isInitialized = false;
 			}
 		}
 
-		private uint _IntermediateHashSize;
+		private uint intermediateHashSize;
 
 		public uint IntermediateHashSize
 		{ 
-			get { return _IntermediateHashSize; }
+			get { return intermediateHashSize; }
 			set { 
-				_IntermediateHashSize = value; 
+				intermediateHashSize = value; 
 				rawConfig = null;
 				isInitialized = false;
 			}
 		}
 
 
-		private byte[] _Personalization;
+		private byte[] personalization;
 
 		public byte[] Personalization 
 		{ 
-			get { return _Personalization; }
+			get { return personalization; }
 			set { 
-				_Personalization = value; 
+				personalization = value; 
 				rawConfig = null;
 				isInitialized = false;
 			}
 		}
 
-		private byte[] _Salt;
+		private byte[] salt;
 
 		public byte[] Salt 
 		{ 
-			get { return _Salt; }
+			get { return salt; }
 			set { 
-				_Salt = value; 
+				salt = value; 
 				rawConfig = null;
 				isInitialized = false;
 			}
 		}
 
-		private byte[] _Key;
+		private byte[] key;
 
 		public byte[] Key
 		{ 
-			get { return _Key; }
+			get { return key; }
 			set { 
-				_Key = value; 
+				key = value; 
 				rawConfig = null;
 				isInitialized = false;
 			}
