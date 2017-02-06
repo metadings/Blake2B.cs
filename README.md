@@ -1,5 +1,5 @@
 ﻿
-**﻿﻿Blake2B.cs source code package - C# implementation**
+**﻿﻿BLAKE2.cs source code package - C# implementation**
 
 ```
 Written in 2012 by Samuel Neves <sneves@dei.uc.pt>
@@ -114,5 +114,8 @@ using System.Text;
 
 ~/Blake2B.cs/bin/Debug $ mono ./Blake2B.exe --in=./Hallo.txt
 bbc9e82dbf9a8897a5ec2f6836c381dbe27ac0b8ecd9912afa67459ef9474d70a52bf24ad5dcf29dbb8004d19a387b6516cc47ffae99d59d52efc013456c6b48
+
+~/Blake2B.cs/bin/Debug $ mono ./Blake2B.exe --in=./Hallo.txt Blake2S
+4c02b80d515f400156a5f2b26085e5b13b590ae613d331b0e5b9bf1aab69f09a
 ```
 

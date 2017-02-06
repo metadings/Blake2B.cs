@@ -38,5 +38,10 @@
     <Compile Include="Blake2B-Inline.cs" />
     <Compile Include="Blake2B-Simple.cs" />
     <Compile Include="Program.cs" />
+    <Compile Include="Blake2S.cs" />
+    <Compile Include="Blake2S-FullyUnrolled.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="README.md" />
   </ItemGroup>
 </Project>

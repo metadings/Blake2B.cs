@@ -19,13 +19,19 @@ namespace Crypto
 				Blake2B(dictionary);
 				return;
 			}
+			if (command.Equals("Blake2S", StringComparison.OrdinalIgnoreCase))
+			{
+				Blake2S(dictionary);
+				return;
+			}
 
 			string format =
 					"  HELP: ./Blake2B.exe --In=./Hallo.txt -- Blake2B{0}"
 				+	"        ./Blake2B.exe [ --option=value ] [ -- ] [ command ]{0}"
 				+	"{0}"
-				+	"   COMMAND: Blake2B{0}"
-				+	"            Requires option --In=./FileName.txt.{0}";
+				+	"    Option: --In=./FileName.txt is required{0}"
+				+	"{0}"
+				+	"  Commands: Blake2B (Default), Blake2S";
 			
 			Console.WriteLine(format, Environment.NewLine);
 		}
@@ -41,25 +47,10 @@ namespace Crypto
 				return;
 			}
 
-			/* FileInfo outFile;
-			if (dictionary.ContainsKey("Out"))
-			if (File.Exists(dictionary["Out"]))
-				outFile = new FileInfo(dictionary["Out"]);
-			// if (!outFile.Exists) throw new FileNotFoundException("Out (file) not found"); /**/
-
-			/* string inDir = inFile.DirectoryName;
-			string inFileName = inFile.Name;
-			string inFileExt = inFile.Extension;
-
-			var outFile = new FileInfo(inDir + inFileName + ".Blake2B" + inFileExt);
-			/**/
-
-			byte[] hashValue;
-
 			// using (var hash = new Blake2B()) value = hash.ComputeHash(bytes);
 
+			byte[] hashValue;
 			using (var fileIn = new FileStream(inFile.FullName, FileMode.Open))
-			// using (var fileOut = new FileStream(outFile.FullName))
 			using (var hash = new Blake2B())
 			{
 				var buffer = new byte[512];
@@ -77,6 +68,47 @@ namespace Crypto
 					fileL -= bufferL;
 					fileI += bufferL;
 				
+				} while(0 < fileL);
+
+				hashValue = hash.Final();
+			}
+
+			foreach (byte v in hashValue) Console.Write("{0:x2}", v);
+			Console.WriteLine();
+		}
+
+		public static void Blake2S(IDictionary<string, string> dictionary)
+		{
+			FileInfo inFile = null;
+			if (dictionary.ContainsKey("In"))
+			if (File.Exists(dictionary["In"]))
+				inFile = new FileInfo(dictionary["In"]);
+			if (inFile == null || !inFile.Exists) {
+				Console.WriteLine("Blake2S: --In file not found");
+				return;
+			}
+
+			// using (var hash = new Blake2S()) value = hash.ComputeHash(bytes);
+
+			byte[] hashValue;
+			using (var fileIn = new FileStream(inFile.FullName, FileMode.Open))
+			using (var hash = new Blake2S())
+			{
+				var buffer = new byte[256];
+				int bufferL, fileI = 0;
+				long fileL = inFile.Length;
+				do
+				{
+					bufferL = fileIn.Read(buffer, 0, buffer.Length);
+
+					if (bufferL > 0)
+					{
+						hash.Core(buffer, 0, bufferL);
+					}
+
+					fileL -= bufferL;
+					fileI += bufferL;
+
 				} while(0 < fileL);
 
 				hashValue = hash.Final();
