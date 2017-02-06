@@ -62,7 +62,7 @@ namespace Crypto
 		public Blake2B(int hashSizeInBits)
 			: this()
 		{	
-			if (hashSizeInBits < 1 || hashSizeInBits > 512)
+			if (hashSizeInBits < 8) // || hashSizeInBits > 512)
 				throw new ArgumentOutOfRangeException("hashSizeInBits");
 			if (hashSizeInBits % 8 != 0)
 				throw new ArgumentOutOfRangeException("hashSizeInBits", "MUST be a multiple of 8");
@@ -125,7 +125,7 @@ namespace Crypto
 			// Key length
 			if (Key != null)
 			{
-				if (Key.Length > 64)
+				if (Key.Length > BLAKE2B_KEYBYTES)
 					throw new ArgumentException("Key", "Key too long");
 
 				c[0] |= ((ulong)Key.Length << 8);
@@ -147,7 +147,7 @@ namespace Crypto
 			// Salt
 			if (Salt != null)
 			{
-				if (Salt.Length != 16)
+				if (Salt.Length != BLAKE2B_SALTBYTES)
 					throw new ArgumentException("Salt has invalid length");
 
 				c[4] = BytesToUInt64(Salt, 0);
@@ -156,7 +156,7 @@ namespace Crypto
 			// Personalization
 			if (Personalization != null)
 			{
-				if (Personalization.Length != 16)
+				if (Personalization.Length != BLAKE2B_PERSONALBYTES)
 					throw new ArgumentException("Personalization has invalid length");
 
 				c[6] = BytesToUInt64(Personalization, 0);

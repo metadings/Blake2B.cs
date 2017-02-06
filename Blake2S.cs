@@ -54,7 +54,7 @@ namespace Crypto
 		public Blake2S(int hashSizeInBits)
 			: this()
 		{	
-			if (hashSizeInBits < 1 || hashSizeInBits > 256)
+			if (hashSizeInBits < 8) // || hashSizeInBits > 256)
 				throw new ArgumentOutOfRangeException("hashSizeInBits");
 			if (hashSizeInBits % 8 != 0)
 				throw new ArgumentOutOfRangeException("hashSizeInBits", "MUST be a multiple of 8");
@@ -64,7 +64,7 @@ namespace Crypto
 
 		// enum blake2b_constant's
 		public const int BLAKE2S_BLOCKBYTES = 64;
-		public const int BLAKE2S_BLOCKUINT32S = BLAKE2S_BLOCKBYTES / 4;
+		public const int BLAKE2S_BLOCKUINT32S = BLAKE2S_BLOCKBYTES / 8;
 		public const int BLAKE2S_OUTBYTES = 32;
 		public const int BLAKE2S_KEYBYTES = 32;
 		public const int BLAKE2S_SALTBYTES = 8;
@@ -115,7 +115,7 @@ namespace Crypto
 			// Key length
 			if (Key != null)
 			{
-				if (Key.Length > 64)
+				if (Key.Length > BLAKE2S_KEYBYTES)
 					throw new ArgumentException("Key", "Key too long");
 
 				c[0] |= ((uint)Key.Length << 8);
@@ -137,7 +137,7 @@ namespace Crypto
 			// Salt
 			if (Salt != null)
 			{
-				if (Salt.Length != 8)
+				if (Salt.Length != BLAKE2S_SALTBYTES)
 					throw new ArgumentException("Salt has invalid length");
 
 				c[4] = BytesToUInt32(Salt, 0);
@@ -146,7 +146,7 @@ namespace Crypto
 			// Personalization
 			if (Personalization != null)
 			{
-				if (Personalization.Length != 8)
+				if (Personalization.Length != BLAKE2S_PERSONALBYTES)
 					throw new ArgumentException("Personalization has invalid length");
 
 				c[6] = BytesToUInt32(Personalization, 0);
