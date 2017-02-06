@@ -1,4 +1,4 @@
-﻿/*	Blake2B.cs source code package - C# implementation
+﻿/*	BLAKE2.cs source code package - C# implementation
 
 	Written in 2012 by Samuel Neves <sneves@dei.uc.pt>
 	Written in 2012 by Christian Winnerlein <codesinchaos@gmail.com>
@@ -77,22 +77,6 @@ namespace Crypto
 		public const int BLAKE2B_KEYBYTES = 64;
 		public const int BLAKE2B_SALTBYTES = 16;
 		public const int BLAKE2B_PERSONALBYTES = 16;
-
-		/* 
-		#region Consts
-		private static readonly ulong[] c64init384 =
-		{
-			0xCBBB9D5DC1059ED8UL, 0x629A292A367CD507UL, 0x9159015A3070DD17UL, 0x152FECD8F70E5939UL,
-			0x67332667FFC00B31UL, 0x8EB44A8768581511UL, 0xDB0C2E0D64F98FA7UL, 0x47B5481DBEFA4FA4UL
-		};
-
-		private static readonly ulong[] c64init512 =
-		{
-			0x6A09E667F3BCC908UL, 0xBB67AE8584CAA73BUL, 0x3C6EF372FE94F82BUL, 0xA54FF53A5F1D36F1UL,
-			0x510E527FADE682D1UL, 0x9B05688C2B3E6C1FUL, 0x1F83D9ABFB41BD6BUL, 0x5BE0CD19137E2179UL
-		};
-		#endregion
-		/**/
 
 		public const ulong IV0 = 0x6A09E667F3BCC908UL;
 		public const ulong IV1 = 0xBB67AE8584CAA73BUL;
