@@ -371,7 +371,11 @@ namespace Crypto
 			return Final();
 		}
 
+#if NETSTANDARD1_6
+		public byte[] Hash
+#else
 		public override byte[] Hash
+#endif
 		{
 			get {
 				// if (m_bDisposed) throw new ObjectDisposedException(null);

@@ -360,8 +360,11 @@ namespace Crypto
 			Core(sourceCode, 0, sourceCode.Length);
 			return Final();
 		}
-
+#if NETSTANDARD1_6
+		public byte[] Hash
+#else
 		public override byte[] Hash
+#endif
 		{
 			get {
 				// if (m_bDisposed) throw new ObjectDisposedException(null);
